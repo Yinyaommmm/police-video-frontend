@@ -78,17 +78,26 @@ export const api = {
     ) => {
       const formData = new FormData();
       formData.append("video", file); // 将文件添加到 FormData 对象
-      try {
-        const response = await instance.post("/upload", formData, {
-          onUploadProgress,
-        });
-        console.log("index.ts Upload successful:", response.data);
-      } catch (error) {
-        console.error("Upload failed:", error);
-      }
+      const response = await instance.post("/upload", formData, {
+        onUploadProgress,
+      });
+      console.log(response);
+    },
+    existCheck: async (fileName: string): Promise<{ exist: boolean }> => {
+      return await instance.post(
+        "/exist-check",
+        {
+          fileName,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        },
+      );
     },
     hello: async () => {
-      return await instance.post("/hello");
+      return await instance.get("/hello");
     },
   },
 };

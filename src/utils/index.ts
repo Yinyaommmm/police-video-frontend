@@ -24,7 +24,7 @@ export function calcNeedTime(estimated: number | undefined): string {
   if (estimated !== undefined) {
     const hours = Math.floor(estimated / 3600);
     const minutes = Math.floor((estimated % 3600) / 60);
-    const seconds = estimated % 60;
+    const seconds = Math.floor(estimated % 60);
     const timeArr = hours > 0 ? [hours, minutes, seconds] : [minutes, seconds];
     const timeString = timeArr
       .map((unit) => String(unit).padStart(2, "0"))

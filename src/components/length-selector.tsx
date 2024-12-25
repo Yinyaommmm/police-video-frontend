@@ -15,7 +15,7 @@ export const LengthSelectors: FC = () => {
         <button
           key={item.key}
           className={twMerge(
-            " border-none rounded-md  h-8 min-w-[100px] font-bold mr-6  cursor-pointer hover:bg-button_hover_background",
+            " border-none rounded-md  h-8 min-w-[100px] font-bold mr-6  cursor-pointer hover:bg-button_hover_background select-none",
             item.key === curItem
               ? "bg-button_normal_background "
               : "bg-[#333A45] text-[#727485]",

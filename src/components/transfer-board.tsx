@@ -26,13 +26,18 @@ export const TransferBoard: FC = () => {
     if (e.target.files !== null && e.target.files?.length !== 0) {
       const video = e.target.files[0];
       // 防止重复上传
-      const didUpload =
+      const didUploading =
         transferArray.find((item) => item.title === video.name) !== undefined;
-      if (didUpload) {
+      if (didUploading) {
+        showMessage("正在上传该文件");
+        return;
+      }
+      // 防止已在后端存在
+      const didUploaded = await api.transfer.existCheck(video.name);
+      if (didUploaded.exist) {
         showMessage("已经上传过该文件");
         return;
       }
-
       const uniID = uuidv4();
       $VT.update("create new upload", (state) => {
         state.transferArray = [
@@ -55,25 +60,30 @@ export const TransferBoard: FC = () => {
         const progressItem = $VT
           .get()
           .transferArray.find((item) => item.uniID === uniID);
-        console.log(transferArray);
-        console.log(progressItem);
         if (progressItem === undefined) {
           return;
         }
         $VT.update("upload progress", (state) => {
-          const newTransferArray = state.transferArray.filter(
-            (item) => item.uniID !== uniID,
+          state.transferArray = state.transferArray.map(
+            (item) =>
+              item.uniID === uniID
+                ? {
+                    ...item,
+                    ...progressItem,
+                    speed: calcSpeed(progressEvent.rate),
+                    needTime: calcNeedTime(progressEvent.estimated),
+                    progress: progressEvent.progress ?? 0.01,
+                  }
+                : item, // 如果不是要更新的任务，则保留原样
           );
-          newTransferArray.push({
-            ...progressItem,
-            speed: calcSpeed(progressEvent.rate),
-            needTime: calcNeedTime(progressEvent.estimated),
-            progress: progressEvent.progress ?? 0.01,
-          });
-          state.transferArray = newTransferArray;
         });
       });
-      console.log("上传视频完成");
+      // 删除上传好的
+      $VT.update("delete uploaded video", (state) => {
+        state.transferArray = state.transferArray.filter(
+          (item) => item.uniID !== uniID,
+        );
+      });
     }
   };
   return (
@@ -84,6 +94,7 @@ export const TransferBoard: FC = () => {
           initial={{ opacity: 0, y: -20 }} // 初始状态：透明且稍微向上偏移
           animate={{ opacity: 1, y: 0 }} // 进入动画：变得不透明并移动到最终位置
           exit={{ opacity: 0, y: -20 }} // 退出动画：再次变为透明并稍微向上移动
+          layout
           className="absolute w-[28vw] h-80 pt-2 px-2
            bg-black/20 backdrop-blur-md shadow-lg right-2 top-[64px] rounded-lg
            border-solid border-l-0 border-r-0 border-b-0 border-white/20 flex flex-col overflow-y-scroll scrollbar-hidden"
@@ -126,25 +137,31 @@ export const TransferBoard: FC = () => {
               ➕上传新视频
             </div>
           </div>
-          {transferArray
-            .filter((item) => {
-              if (curItem === "all") {
-                return true;
-              } else {
-                return curItem === item.type;
-              }
-            })
-            .map((item) => (
-              <TransferItem
-                key={item.type + item.title.substring(0, 4)}
-                type={item.type}
-                title={item.title}
-                speed={item.speed}
-                size={item.size}
-                needTime={item.needTime}
-                progress={item.progress}
-              />
-            ))}
+          <AnimatePresence>
+            {transferArray
+              .filter((item) => {
+                if (curItem === "all") {
+                  return true;
+                } else {
+                  return curItem === item.type;
+                }
+              })
+              .map((item) => (
+                <TransferItem
+                  key={
+                    item.type +
+                    item.title.substring(0, 4) +
+                    item.title.slice(-5)
+                  }
+                  type={item.type}
+                  title={item.title}
+                  speed={item.speed}
+                  size={item.size}
+                  needTime={item.needTime}
+                  progress={item.progress}
+                />
+              ))}{" "}
+          </AnimatePresence>
         </motion.div>
       )}
     </AnimatePresence>

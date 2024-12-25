@@ -1,6 +1,7 @@
 import { DownloadIcon, UploadIcon } from "@/assets/icons";
 import React, { type FC } from "react";
 import { twMerge } from "tailwind-merge";
+import { motion } from "framer-motion"; // 引入 motion
 
 export interface TransferItemProps {
   type: "up" | "down";
@@ -10,6 +11,16 @@ export interface TransferItemProps {
   needTime: string;
   progress: number;
 }
+
+const itemVariants = {
+  initial: { opacity: 0, x: -20 },
+  animate: { opacity: 1, x: 0 },
+  exit: {
+    opacity: 0,
+    x: 20,
+    transition: { duration: 0.2, ease: "easeInOut" },
+  },
+};
 export const TransferItem: FC<TransferItemProps> = ({
   type,
   title,
@@ -19,12 +30,17 @@ export const TransferItem: FC<TransferItemProps> = ({
   progress,
 }) => {
   const dynamicWidth = `${Math.floor(progress * 320)}px`;
+
   return (
-    <div
+    <motion.div
       className="bg-black/20 backdrop-blur-md shadow-lg
          w-11/12 h-16 rounded-lg flex items-center box-border 
-         px-2 mx-auto mb-2 flex-shrink-0
-      "
+         px-2 mx-auto mb-2 flex-shrink-0"
+      layout
+      variants={itemVariants}
+      initial="initial"
+      animate="animate"
+      exit="exit"
     >
       {type === "up" ? (
         <UploadIcon className="w-auto h-12 text-1xl text-white" />
@@ -32,7 +48,7 @@ export const TransferItem: FC<TransferItemProps> = ({
         <DownloadIcon className="w-auto h-12 text-1xl text-white" />
       )}
 
-      <div data-type="rightContent" className="w-80 h-14  mx-auto">
+      <div data-type="rightContent" className="w-80 h-14 mx-auto">
         <div className="text-white h-7 w-full leading-7 line-clamp-1">
           {title}
         </div>
@@ -44,16 +60,14 @@ export const TransferItem: FC<TransferItemProps> = ({
           <span>{speed}</span>
           <span>{needTime}</span>
         </div>
-        <div
+        <motion.div
           id="progressBar"
-          // className={twMerge(
-          //   "text-white mt-2 h-1 bg-button_normal_background rounded-md",
-          //   dynamicWidth,
-          // )}
           className={`text-white mt-2 h-1 bg-button_normal_background rounded-md`}
           style={{ width: dynamicWidth }}
-        ></div>
+          initial={{ width: "0px" }} // 进度条的初始宽度为0
+          animate={{ width: dynamicWidth }} // 动态宽度
+        ></motion.div>
       </div>
-    </div>
+    </motion.div>
   );
 };
