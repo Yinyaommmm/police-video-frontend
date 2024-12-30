@@ -1,16 +1,40 @@
+import { api } from "@/api";
 import { LengthSelectors } from "@/components/length-selector";
 import { TimeSelectors } from "@/components/time-selector";
 import { TransferBoard } from "@/components/transfer-board";
 import { VideoCard } from "@/components/video-card";
 import { VideoNavBar } from "@/components/video-navbar";
 import { $VT } from "@/store/videotransfer";
-import React, { type FC } from "react";
+import { calcNeedTime, createImageURL } from "@/utils";
+import React, { useEffect, type FC } from "react";
 
 export const Transfer: FC = () => {
   const currentPage = $VT.use((state) => state.curPage);
   const totalPage = $VT.use((state) => state.totalPage);
+  const perPage = $VT.use(state => state.perPage)
+  const videoCardArr = $VT.use(state => state.videoCardArray)
+  useEffect(() => {
+    const fetchThumbnail = async () => {
+      const res = await api.transfer.thumbnailList(currentPage)
+      const caclTotalPage = Math.ceil(res.total_num / perPage)
+      if (caclTotalPage !== totalPage) {
+        $VT.update("change total", (state) => {
+          state.totalPage = caclTotalPage
+        })
+      }
+      $VT.update("update video", (state) => {
+        state.videoCardArray = res.thumbnail_list.map(item => ({
+          image: createImageURL(item.url),
+          name: item.filename,
+          time: calcNeedTime(item.time)
+        }))
+      })
+    };
+    fetchThumbnail()
+  }, [currentPage]);
   return (
-    <div className="flex-grow relative mx-8 ">
+
+    < div className="flex-grow relative mx-8 " >
       <VideoNavBar />
       <div id="video-container" className=" w-full h-4/5 rounded-lg">
         <div id="filter" className="text-white flex mx-5 mb-8 flex-col">
@@ -18,14 +42,17 @@ export const Transfer: FC = () => {
           <LengthSelectors />
         </div>
         <div id="line " className="flex mb-5 flex-wrap w-[82vw] mx-auto ">
-          <VideoCard time="02:15" />
+          {videoCardArr.map((card, index) => {
+            return <VideoCard key={card.name} time={card.time} imgSrc={card.image} title={card.name} isLast={(index + 1) % 4 === 0} />
+          })}
+          {/* <VideoCard time="02:15" />
           <VideoCard time="03:15" />
           <VideoCard time="04:15" />
           <VideoCard time="05:15" isLast />
           <VideoCard time="02:15" />
           <VideoCard time="03:15" />
           <VideoCard time="04:15" />
-          <VideoCard time="05:15" isLast />
+          <VideoCard time="05:15" isLast /> */}
         </div>
 
         <div id="pagination" className="w-full flex justify-center ">
@@ -50,6 +77,7 @@ export const Transfer: FC = () => {
             className={`font-bold bg-button_normal_background border-none rounded-xl min-w-24 h-[34px] ml-8 
               ${currentPage === totalPage ? "cursor-not-allowed opacity-50" : "cursor-pointer hover:bg-button_hover_background"}`}
             onClick={() => {
+              console.log(currentPage, totalPage)
               if (currentPage !== totalPage) {
                 // todo : 请求下一页内容
                 $VT.update("last page", (state) => {
@@ -63,6 +91,6 @@ export const Transfer: FC = () => {
         </div>
         <TransferBoard />
       </div>
-    </div>
+    </div >
   );
 };

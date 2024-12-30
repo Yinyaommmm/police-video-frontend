@@ -34,7 +34,8 @@ export const TransferBoard: FC = () => {
       }
       // 防止已在后端存在
       const didUploaded = await api.transfer.existCheck(video.name);
-      if (didUploaded.exist) {
+      console.log(didUploaded)
+      if (didUploaded === "True") {
         showMessage("已经上传过该文件");
         return;
       }
@@ -68,12 +69,12 @@ export const TransferBoard: FC = () => {
             (item) =>
               item.uniID === uniID
                 ? {
-                    ...item,
-                    ...progressItem,
-                    speed: calcSpeed(progressEvent.rate),
-                    needTime: calcNeedTime(progressEvent.estimated),
-                    progress: progressEvent.progress ?? 0.01,
-                  }
+                  ...item,
+                  ...progressItem,
+                  speed: calcSpeed(progressEvent.rate),
+                  needTime: calcNeedTime(progressEvent.estimated),
+                  progress: progressEvent.progress ?? 0.01,
+                }
                 : item, // 如果不是要更新的任务，则保留原样
           );
         });

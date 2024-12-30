@@ -5,6 +5,7 @@ import { Loading } from "@/components/loading";
 import { $UI } from "@/store/ui";
 import { Message } from "@/components/message";
 import { Transfer } from "./components/transfer";
+import { Player } from "@/route/player/index";
 
 export const Home: FC = () => {
   const task = $UI.use((state) => state.task);
@@ -26,7 +27,8 @@ export const Home: FC = () => {
       <NavBar />
       <div className="flex h-[calc(100vh-68px)] bg-main_background">
         <Menu />
-        <Transfer />
+        {task === "transfer" && <Transfer />}
+        {task === "player" && <Player />}
       </div>
       <div
         className="fixed bottom-0 left-0 w-[100vw] h-[118px] 

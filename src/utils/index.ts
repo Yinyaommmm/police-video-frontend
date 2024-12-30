@@ -1,3 +1,5 @@
+import { BackEndIP } from "@/config";
+
 const GBLevel = 1024 * 1024 * 1024;
 const MBLevel = 1024 * 1024;
 const KBLevel = 1024;
@@ -32,4 +34,8 @@ export function calcNeedTime(estimated: number | undefined): string {
     return timeString;
   }
   return "计算中...";
+}
+
+export function createImageURL(fileName:string):string{
+  return `${BackEndIP}api/v1/video_s/image?filename=${fileName}`
 }

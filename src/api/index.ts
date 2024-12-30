@@ -1,6 +1,11 @@
 /* eslint-disable @typescript-eslint/promise-function-async */
 import { type AxiosProgressEvent } from "axios";
 import instance from "./axios";
+import instance_long from "./axios_long";
+interface IThumbnail {
+  total_num:number,
+  thumbnail_list: {filename:string,url:string,time:number}[]
+}
 
 export const api = {
   age: (
@@ -77,27 +82,41 @@ export const api = {
       onUploadProgress: (progressEvent: AxiosProgressEvent) => void,
     ) => {
       const formData = new FormData();
-      formData.append("video", file); // 将文件添加到 FormData 对象
-      const response = await instance.post("/upload", formData, {
+      formData.append("file", file); 
+      formData.append("name", file.name); 
+      const response = await instance.post("/video_s/upload", formData, {
         onUploadProgress,
       });
       console.log(response);
     },
-    existCheck: async (fileName: string): Promise<{ exist: boolean }> => {
-      return await instance.post(
-        "/exist-check",
+    existCheck: async (fileName: string): Promise<string> => {
+      return await instance.get(
+        "video_s/exist",
         {
-          fileName,
-        },
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
+          params:{
+            video_name:fileName
+          }
         },
       );
     },
-    hello: async () => {
-      return await instance.get("/hello");
-    },
-  },
+    thumbnailList:async(page : number):Promise<IThumbnail> =>{
+      const perPage = 8
+      return await instance.get("video_s/views" ,{
+        params:{
+          skip:(page-1)*perPage,
+          limit:perPage
+        }
+      })
+   },
+    download : async(filename : string,onDownloadProgress:(progressEvent: AxiosProgressEvent) => void):Promise<Blob>=>{
+      const res =  await instance_long.get("video_s/download",{
+        params:{
+          video_name : filename
+        },
+        responseType:'blob',
+        onDownloadProgress
+      })
+      return  res.data as Blob;
+    }
+   }
 };

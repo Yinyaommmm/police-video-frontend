@@ -1,16 +1,16 @@
 import { $UI } from "@/store/ui";
 import axios from "axios";
 
-const instance = axios.create({
+const instance_long = axios.create({
   baseURL: "api/v1",
-  timeout: 30000,
+  timeout: 3600*1000, // 20M的网速最大请求文件72G
 });
-instance.defaults.headers.get["Content-Type"] = "application/json";
-instance.defaults.headers.get.Accept = "*/*";
-instance.defaults.headers.common.Authorization = `Bearer ${localStorage.getItem("token")}`;
+instance_long.defaults.headers.get["Content-Type"] = "application/json";
+instance_long.defaults.headers.get.Accept = "*/*";
+instance_long.defaults.headers.common.Authorization = `Bearer ${localStorage.getItem("token")}`;
 
 // 请求拦截器
-instance.interceptors.request.use(
+instance_long.interceptors.request.use(
   (config) => {
     return config;
   },
@@ -20,7 +20,7 @@ instance.interceptors.request.use(
 );
 
 // 响应拦截器
-instance.interceptors.response.use(
+instance_long.interceptors.response.use(
   (res) => {
     if (res.config.responseType === "blob") {
       return res; // 返回整个响应以便下载
@@ -56,4 +56,4 @@ instance.interceptors.response.use(
   },
 );
 
-export default instance;
+export default instance_long;

@@ -1,23 +1,16 @@
 export const MenuOptions: Array<{
   text: string;
-  value: "portrait" | "aging" | "enhance" | "transfer";
+  value:  "transfer" | "player";
 }> = [
-  // {
-  //   text: "肖像转人脸",
-  //   value: "portrait",
-  // },
-  // {
-  //   text: "年龄控制",
-  //   value: "aging",
-  // },
-  // {
-  //   text: "人脸增强",
-  //   value: "enhance",
-  // },
+
   {
     text: "视频传输",
     value: "transfer",
   },
+  {
+    text : "视频播放",
+    value : "player"
+  }
 ];
 
 export const EnhanceMethods = ["codeformer", "restoreformer", "vqfr"];

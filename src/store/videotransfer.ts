@@ -12,15 +12,22 @@ export interface ITransferItem {
   progress: number;
   uniID: string;
 }
+export interface IVideoCardItem {
+  image : string,
+  name : string,
+  time : string
+}
 
 export interface VideoTransferModel {
   timeSelector: TimeSelector;
   lengthSelector: LengthSelector;
   curPage: number;
   totalPage: number;
+  perPage:number,
   boardVisible: boolean;
   boardSelector: BoardSelector;
   transferArray: ITransferItem[];
+  videoCardArray : IVideoCardItem[]
 }
 
 export const $VT = model<VideoTransferModel>("UI", {
@@ -28,12 +35,13 @@ export const $VT = model<VideoTransferModel>("UI", {
   lengthSelector: "alllength",
   curPage: 1,
   totalPage: 5,
-  boardVisible: true,
+  perPage:8,
+  boardVisible: false,
   boardSelector: "all",
   transferArray: [
     // {
     //   type: "up",
-    //   title: "五角场合生汇顶级监控无死角360°想看就看无人能管",
+    //   title: "五角场合生汇顶楼监控360°江湾体育场方向",
     //   speed: "200KB/S",
     //   size: "3.2GB",
     //   needTime: "12:40",
@@ -42,7 +50,7 @@ export const $VT = model<VideoTransferModel>("UI", {
     // },
     // {
     //   type: "down",
-    //   title: "五角场合生汇顶级监控无死角360°想看就看无人能管",
+    //   title: "五角场合生汇顶楼监控360°复旦邯郸校区方向",
     //   speed: "200KB/S",
     //   size: "3.2GB",
     //   needTime: "12:40",
@@ -86,4 +94,5 @@ export const $VT = model<VideoTransferModel>("UI", {
     //   uniID: "AA6",
     // },
   ],
+  videoCardArray:[]
 });

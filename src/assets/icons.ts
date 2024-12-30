@@ -10,6 +10,10 @@ import NoticeIcon from "./icon-notice.svg?react";
 import CompareIcon from "./icon-compare.svg?react";
 import DownloadIcon from "./icon-download.svg?react";
 import TransferIcon from "./icon-transfer.svg?react";
+import ItemsIcon from './icon-items.svg?react'
+import VideoUploadIcon from './icon-video-upload.svg?react'
+import ForbiddenIcon from './icon-forbidden.svg?react'
+import DividerIcon from './icon-divider.svg?react'
 export {
   FoldIcon,
   UnFoldIcon,
@@ -23,4 +27,8 @@ export {
   CompareIcon,
   DownloadIcon,
   TransferIcon,
+  ItemsIcon,
+  VideoUploadIcon,
+  ForbiddenIcon,
+  DividerIcon
 };

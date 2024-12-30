@@ -9,10 +9,11 @@ export const NavBar: FC = () => {
   return (
     <div className="bg-main_background h-[68px] w-full flex items-center">
       <div
-        className="text-icon hover:text-icon_hover px-6 border-0 border-r border-solid border-border_nav h-[26px] flex items-center"
+        className="text-icon hover:text-icon_hover px-6 border-0 border-r border-solid border-border_nav h-[26px] flex items-center
+        cursor-not-allowed"
         onClick={() => {
           $UI.update("menu trigger", (draft) => {
-            draft.menu = !menu;
+            // draft.menu = !menu;
           });
         }}
       >
