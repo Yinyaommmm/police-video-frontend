@@ -34,7 +34,6 @@ export const TransferBoard: FC = () => {
       }
       // 防止已在后端存在
       const didUploaded = await api.transfer.existCheck(video.name);
-      console.log(didUploaded)
       if (didUploaded === "True") {
         showMessage("已经上传过该文件");
         return;

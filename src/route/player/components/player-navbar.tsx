@@ -1,6 +1,11 @@
 import { $PR } from "@/store/player";
 import React, { useRef, type FC } from "react";
 import { ItemsIcon, VideoUploadIcon, ForbiddenIcon } from "@/assets/icons";
+import { stat } from "fs";
+import { api } from "@/api";
+import { showMessage } from "@/components/message";
+import { createEventsTNURL } from "@/utils";
+
 
 export const PlayerNavBar: FC = () => {
   const videoName = $PR.use((state) => state.videoName);
@@ -11,30 +16,56 @@ export const PlayerNavBar: FC = () => {
     if (e.target.files !== null && e.target.files?.length !== 0) {
       const localVideo = e.target.files[0]
       const videoUrl = URL.createObjectURL(localVideo);
-      $PR.update("upload video to play", (state) => {
-        state.videoName = localVideo.name
-        state.videoSrc = videoUrl;
-        // 暂时mock一下
-        state.sliceInfoArr = [{
-          imgSrc: "src/assets/fortest/2s.png",
-          beginSecond: 2,
-          endSecond: 4
-        }, {
-          imgSrc: "src/assets/fortest/7s.png",
-          beginSecond: 7,
-          endSecond: 8
-        }, {
-          imgSrc: "src/assets/fortest/15s.png",
-          beginSecond: 15,
-          endSecond: 18
-        }]
-      })
-    }
+
+      // 创建一个隐藏的video标签去感知宽高
+      const video = document.createElement('video');
+      video.preload = 'metadata';
+      video.src = videoUrl;
+      video.onloadedmetadata = async function () {
+        const width = video.videoWidth;
+        const height = video.videoHeight;
+        const originPlayerWidth = 935
+        const originPlayerHeight = 572
+        // 宽占主导
+        const widthDominant = width / height > originPlayerWidth / originPlayerHeight
+        // 播放视频信息设置
+        $PR.update('jol init & upload video to play', (state) => {
+          state.videoSrc = videoUrl
+          state.videoName = localVideo.name
+          state.jolOption = {
+            width: widthDominant ? originPlayerWidth : undefined,
+            height: widthDominant ? undefined : originPlayerHeight,
+            mode: widthDominant ? 'widthFix' : 'heightFix',
+            videoSrc: videoUrl,
+            isShowWebFullScreen: widthDominant,
+            isShowPicture: widthDominant,
+            isShowSet: widthDominant,
+            theme: "#47d4ff"
+          }
+        })
+        // 如果视频后端存在，获取统计信息和缩略信息
+        const res = await api.transfer.statistics(localVideo.name, 200)
+        $PR.update('set statastical info', (state) => {
+          state.statisticalInfo = res
+        })
+        const a = await api.transfer.timeEvents(localVideo.name)
+        $PR.update('set time events info', state => {
+          state.sliceInfoArr = a.map(item => ({
+            imgSrc: createEventsTNURL(item.ScreenShot),
+            beginSecond: item.StartTime,
+            endSecond: item.EndTime,
+          }))
+        })
+        console.log(`视频宽度: ${width}, 视频高度: ${height}`);
+      }
+    };
   }
+
   return (
     <div className="mb-2">
       <h2 className="text-white flex mb-2">
-        <span className="text-xl ">{videoName.length < + 40 ? videoName : videoName.slice(0, 40) + "..."}</span>
+        {/* <span className="text-xl ">{videoName.length < + 40 ? videoName : videoName.slice(0, 40) + "..."}</span> */}
+        <span className="text-xl ">{videoName}</span>
         <div
           className=" ml-auto mr-4 bg-[#1f2429] border-none  rounded-[1000px] 
         hover:bg-[#2e363d] hover:cursor-pointer"

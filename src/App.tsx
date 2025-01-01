@@ -4,7 +4,7 @@ import { Home } from "./route/home";
 
 const App: FC = () => {
   return (
-    <div>
+    <div >
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Home />} />

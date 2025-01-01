@@ -32,7 +32,7 @@ export const EventList: FC<EventListProperty> = ({ playVideoAt }) => {
       <div className="w-[300px] h-[500px]  overflow-y-scroll scrollbar-hidden">
 
         {sliceInfoArr.map(info => (
-          <div className="w-[95%] mt-2   rounded-lg relative mx-auto">
+          <div key={info.imgSrc} className="w-[95%] mt-2   rounded-lg relative mx-auto">
             <img src={info.imgSrc} alt="" className="w-[100%] max-h-40 rounded-lg" />
             <TimeLeftButton second={info.beginSecond} playAt={playVideoAt} />
             <TimeRightButton second={info.endSecond} playAt={playVideoAt} />

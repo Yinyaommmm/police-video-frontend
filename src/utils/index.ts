@@ -36,6 +36,11 @@ export function calcNeedTime(estimated: number | undefined): string {
   return "计算中...";
 }
 
-export function createImageURL(fileName:string):string{
+export function createTransferTNURL(fileName:string):string{
   return `${BackEndIP}api/v1/video_s/image?filename=${fileName}`
 }
+export function createEventsTNURL(fileName:string):string{
+  return `${BackEndIP}api/v1/video_s/ScreenShot?filename=${fileName}`
+}
+
+

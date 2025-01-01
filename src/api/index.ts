@@ -2,10 +2,24 @@
 import { type AxiosProgressEvent } from "axios";
 import instance from "./axios";
 import instance_long from "./axios_long";
+import { TimeEvent } from "@/store/player";
+import { log } from "util";
 interface IThumbnail {
   total_num:number,
   thumbnail_list: {filename:string,url:string,time:number}[]
 }
+export interface EventsInfoRes{
+  total_time : number,
+  split:number,
+  info:TimeEvent[]
+}
+export type TimeEventsRes = {
+    "ScreenShot": string
+    "StartTime": number,
+    "EndTime": number,
+    "Event": string
+    "Method": string
+}[]
 
 export const api = {
   age: (
@@ -117,6 +131,23 @@ export const api = {
         onDownloadProgress
       })
       return  res.data as Blob;
+    },
+    statistics : async(filename:string,event_num:number):Promise<EventsInfoRes> =>{
+      const res:EventsInfoRes =  await instance.get("video_s/events_info",{
+        params:{
+          filename,
+          num:event_num
+        }
+      })
+      return res;
+    },
+    timeEvents : async(filename : string):Promise<TimeEventsRes>=>{
+      const res :TimeEventsRes=  await instance.get("video_s/events",{
+        params:{
+          filename
+        }
+      })
+      return res
     }
    }
 };

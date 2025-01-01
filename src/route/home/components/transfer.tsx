@@ -5,7 +5,7 @@ import { TransferBoard } from "@/components/transfer-board";
 import { VideoCard } from "@/components/video-card";
 import { VideoNavBar } from "@/components/video-navbar";
 import { $VT } from "@/store/videotransfer";
-import { calcNeedTime, createImageURL } from "@/utils";
+import { calcNeedTime, createTransferTNURL } from "@/utils";
 import React, { useEffect, type FC } from "react";
 
 export const Transfer: FC = () => {
@@ -24,7 +24,7 @@ export const Transfer: FC = () => {
       }
       $VT.update("update video", (state) => {
         state.videoCardArray = res.thumbnail_list.map(item => ({
-          image: createImageURL(item.url),
+          image: createTransferTNURL(item.url),
           name: item.filename,
           time: calcNeedTime(item.time)
         }))
