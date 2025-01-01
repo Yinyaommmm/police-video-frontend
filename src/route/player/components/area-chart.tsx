@@ -28,8 +28,11 @@ const CustomTooltip = ({
 
 export const AreaCharts: FC<AreaChartsProps> = ({ info, click }) => {
     const [key, setKey] = useState(0);
+    console.log('asd')
     useEffect(() => {
         setKey(prevKey => prevKey + 1);
+        // console.log('set')
+        // console.log(info)
     }, [info]);
     const handleChartClick = (e: any) => {
         const { activePayload } = e;

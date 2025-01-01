@@ -9,6 +9,7 @@ import { createEventsTNURL } from "@/utils";
 
 export const PlayerNavBar: FC = () => {
   const videoName = $PR.use((state) => state.videoName);
+  const eventsNum = $PR.use(state => state.sliceInfoArr.length)
   const localVideoRef = useRef<HTMLInputElement>(null)
   const handleLocalVideoChange = async (
     e: React.ChangeEvent<HTMLInputElement>,
@@ -37,26 +38,27 @@ export const PlayerNavBar: FC = () => {
             height: widthDominant ? undefined : originPlayerHeight,
             mode: widthDominant ? 'widthFix' : 'heightFix',
             videoSrc: videoUrl,
-            isShowWebFullScreen: widthDominant,
+            isShowWebFullScreen: false,
             isShowPicture: widthDominant,
             isShowSet: widthDominant,
             theme: "#47d4ff"
           }
         })
         // 如果视频后端存在，获取统计信息和缩略信息
-        const res = await api.transfer.statistics(localVideo.name, 200)
+        const [statRes, eventRes] = await Promise.all([
+          api.transfer.statistics(localVideo.name, 200),
+          api.transfer.timeEvents(localVideo.name)])
         $PR.update('set statastical info', (state) => {
-          state.statisticalInfo = res
+          state.statisticalInfo = statRes
         })
-        const a = await api.transfer.timeEvents(localVideo.name)
         $PR.update('set time events info', state => {
-          state.sliceInfoArr = a.map(item => ({
+          state.sliceInfoArr = eventRes.map(item => ({
             imgSrc: createEventsTNURL(item.ScreenShot),
             beginSecond: item.StartTime,
             endSecond: item.EndTime,
           }))
         })
-        console.log(`视频宽度: ${width}, 视频高度: ${height}`);
+        // console.log(`视频宽度: ${width}, 视频高度: ${height}`);
       }
     };
   }
@@ -64,8 +66,7 @@ export const PlayerNavBar: FC = () => {
   return (
     <div className="mb-2">
       <h2 className="text-white flex mb-2">
-        {/* <span className="text-xl ">{videoName.length < + 40 ? videoName : videoName.slice(0, 40) + "..."}</span> */}
-        <span className="text-xl ">{videoName}</span>
+        <span className="text-xl ">{videoName.length < + 50 ? videoName : videoName.slice(0, 50) + "..."}</span>
         <div
           className=" ml-auto mr-4 bg-[#1f2429] border-none  rounded-[1000px] 
         hover:bg-[#2e363d] hover:cursor-pointer"
@@ -88,8 +89,8 @@ export const PlayerNavBar: FC = () => {
         </div>
       </h2>
       <div className="flex h-6 items-center ">
-        <div className="text-white flex text-xs mr-3"><ItemsIcon className="mr-1" /> <div className="h-5 leading-5">42</div></div>
-        <div className="text-white flex text-xs mr-3"><VideoUploadIcon className="mr-1" /> <div className="h-5 leading-5"> 2024-12-16 15:48</div></div>
+        <div className="text-white flex text-xs mr-3"><ItemsIcon className="mr-1" /> <div className="h-5 leading-5">{eventsNum > 0 ? eventsNum : '...'}</div></div>
+        <div className="text-white flex text-xs mr-3"><VideoUploadIcon className="mr-1" /> <div className="h-5 leading-5"> 2024-12-16 15:48(视频上传日期)</div></div>
         <div className="text-white flex text-xs mr-3 items-center"><ForbiddenIcon className="mr-1 text-red-500" /> <div className="h-5 leading-5"> 内部使用，禁止外传</div></div>
       </div>
     </div>

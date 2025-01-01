@@ -1,7 +1,6 @@
 import { $PR } from "@/store/player";
-import React, { useCallback, useEffect, useRef, type FC } from "react";
+import React, { useCallback, useRef, type FC } from "react";
 import { DefaultImage } from "@/assets/image";
-import styled from "styled-components";
 import { EventList } from "./event-list";
 import { motion } from "framer-motion";
 import JolPlayer, { JoLPlayerRef } from "jol-player";
@@ -15,8 +14,6 @@ export const PlayerBody: FC = () => {
   const statInfo = $PR.use(state => state.statisticalInfo)
   const playVideoAt = useCallback((second: number) => {
     if (videoRef.current) {
-      console.log(videoRef.current);
-
       videoRef.current.seek(second)
       videoRef.current.play()
     }
@@ -25,8 +22,8 @@ export const PlayerBody: FC = () => {
 
   return (
     <div >
-      <div className="flex ">
-        <div className="flex flex-col items-center justify-center w-[935px] h-[572px]">
+      <div className="flex h-[612px]">
+        <div className="flex flex-col items-center justify-center w-[935px] h-full">
           {videoSrc !== "" ? (
             <motion.div
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.5 }}
@@ -43,14 +40,14 @@ export const PlayerBody: FC = () => {
               </div>
             </motion.div >
           )}
-
+          <div className="w-[935px] h-[40px] " >
+            <AreaCharts info={statInfo.info} total_time={statInfo.total_time} split={statInfo.split} click={playVideoAt} />
+          </div>
         </div>
         <EventList playVideoAt={playVideoAt} />
       </div>
 
-      <div className="w-[935px] h-[40px] " >
-        <AreaCharts info={statInfo.info} total_time={statInfo.total_time} split={statInfo.split} click={playVideoAt} ></AreaCharts>
-      </div>
+
     </div >
 
   );
