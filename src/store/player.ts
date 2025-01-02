@@ -15,7 +15,8 @@ export interface PlayerModel {
   videoSrc: string
   sliceInfoArr : SliceInfo[],
   jolOption:videoOption,
-  statisticalInfo : EventsInfoRes
+  statisticalInfo : EventsInfoRes,
+  tagInfo : string[]
 }
 
 export const $PR = model<PlayerModel>("PR", {
@@ -28,6 +29,8 @@ export const $PR = model<PlayerModel>("PR", {
   statisticalInfo:{
     total_time:0,
     split:0,
-    info:[]
-  }
+    info:[],
+    processed_time:0
+  },
+  tagInfo:[]
 });

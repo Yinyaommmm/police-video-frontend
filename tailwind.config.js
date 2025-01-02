@@ -30,6 +30,7 @@ export default {
     extend: {},
   },
   plugins: [
+    require('tailwind-scrollbar')
   ],
   corePlugins: {
     preflight: false,

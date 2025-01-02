@@ -1,7 +1,6 @@
 import { $PR } from "@/store/player";
-import React, { useRef, type FC } from "react";
+import { type FC } from "react";
 import { DividerIcon } from "@/assets/icons";
-import { DefaultImage } from "@/assets/image";
 import styled from "styled-components";
 import { TimeLeftButton, TimeRightButton } from "./time-button";
 import { motion } from "framer-motion";
@@ -24,11 +23,10 @@ const itemVariants = {
 };
 
 export const EventList: FC<EventListProperty> = ({ playVideoAt }) => {
-  const videoSrc = $PR.use(state => state.videoSrc)
   const sliceInfoArr = $PR.use(state => state.sliceInfoArr)
   return (
 
-    <div className="w-[300px] h-full mx-auto">
+    <div className="w-[300px] h-[652px] mx-auto">
       <div className="p-4 bg-card_background backdrop-blur-[6px]  
         rounded-md border border-solid border-border_card overflow-hidden">
         <div className="text-white flex items-center">
@@ -38,7 +36,8 @@ export const EventList: FC<EventListProperty> = ({ playVideoAt }) => {
 
 
       <motion.div
-        className="w-[300px] h-[calc(100%-55px)] overflow-y-scroll scrollbar-hidden"
+        className="w-[300px] h-[calc(100%-55px)] overflow-y-scroll overflow-x-hidden custom-scrollbar
+        "
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}

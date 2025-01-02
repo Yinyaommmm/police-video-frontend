@@ -1,10 +1,8 @@
 import { $PR } from "@/store/player";
 import React, { useRef, type FC } from "react";
 import { ItemsIcon, VideoUploadIcon, ForbiddenIcon } from "@/assets/icons";
-import { stat } from "fs";
 import { api } from "@/api";
-import { showMessage } from "@/components/message";
-import { createEventsTNURL } from "@/utils";
+import { calcNeedTime, createEventsTNURL } from "@/utils";
 
 
 export const PlayerNavBar: FC = () => {
@@ -58,11 +56,20 @@ export const PlayerNavBar: FC = () => {
             endSecond: item.EndTime,
           }))
         })
-        // console.log(`视频宽度: ${width}, 视频高度: ${height}`);
-      }
-    };
+        $PR.update('set tag info', (state) => {
+          state.tagInfo = [
+            `原始时长 ${calcNeedTime(statRes.total_time)}`,
+            `压缩后时长 ${calcNeedTime(statRes.processed_time)}`,
+            `事件总数 ${eventRes.length}`,
+            `运动事件 ${(eventRes.filter(i => i.Event === "运动").length)}`,
+            // `YOLO ${eventRes.filter(i => i.Method === "YOLO").length}`,
+            // `FrameDiff ${eventRes.filter(i => i.Method === "FrameDiff").length}`
+          ]
+        })
+        // console.log(`视频宽度: ${ width }, 视频高度: ${ height } `);
+      };
+    }
   }
-
   return (
     <div className="mb-2">
       <h2 className="text-white flex mb-2">

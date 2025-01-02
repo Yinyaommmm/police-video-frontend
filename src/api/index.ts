@@ -3,7 +3,6 @@ import { type AxiosProgressEvent } from "axios";
 import instance from "./axios";
 import instance_long from "./axios_long";
 import { TimeEvent } from "@/store/player";
-import { log } from "util";
 interface IThumbnail {
   total_num:number,
   thumbnail_list: {filename:string,url:string,time:number}[]
@@ -12,6 +11,7 @@ export interface EventsInfoRes{
   total_time : number,
   split:number,
   info:TimeEvent[]
+  processed_time:number
 }
 export type TimeEventsRes = {
     "ScreenShot": string
@@ -98,7 +98,7 @@ export const api = {
       const formData = new FormData();
       formData.append("file", file); 
       formData.append("name", file.name); 
-      const response = await instance.post("/video_s/upload", formData, {
+      const response = await instance_long.post("/video_s/upload", formData, {
         onUploadProgress,
       });
       console.log(response);

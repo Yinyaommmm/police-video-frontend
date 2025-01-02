@@ -1,8 +1,11 @@
 import { EventsInfoRes } from "@/api";
 import { calcNeedTime } from "@/utils";
-import React, { FC, useEffect, useState } from "react"
+import { useAnimate } from "framer-motion";
+import { FC, useEffect, useState } from "react"
 import { AreaChart, Area, ResponsiveContainer, Tooltip, TooltipProps, } from "recharts"
+import { CategoricalChartFunc } from "recharts/types/chart/generateCategoricalChart";
 import { NameType, ValueType } from "recharts/types/component/DefaultTooltipContent";
+
 interface AreaChartsProps extends EventsInfoRes {
     click: (second: number) => void
 }
@@ -28,13 +31,14 @@ const CustomTooltip = ({
 
 export const AreaCharts: FC<AreaChartsProps> = ({ info, click }) => {
     const [key, setKey] = useState(0);
-    console.log('asd')
+    const [scope, animate] = useAnimate()
     useEffect(() => {
         setKey(prevKey => prevKey + 1);
-        // console.log('set')
-        // console.log(info)
+        animate(scope.current, {
+            opacity: [0, 1], // 从0到1的透明度变化
+        }, { duration: 0.6 }) // 动画持续时间
     }, [info]);
-    const handleChartClick = (e: any) => {
+    const handleChartClick: CategoricalChartFunc = (e) => {
         const { activePayload } = e;
         if (activePayload && activePayload.length > 0) {
             const clickedData = activePayload[0].payload
@@ -42,8 +46,9 @@ export const AreaCharts: FC<AreaChartsProps> = ({ info, click }) => {
             click(time);
         }
     };
-    return <ResponsiveContainer width="100%" height="100%" >
-        <AreaChart onClick={handleChartClick} key={key} width={500} height={100} data={info} margin={{ right: 0 }}>
+    return <ResponsiveContainer width="100%" height="100%" ref={scope} >
+
+        <AreaChart onClick={handleChartClick} key={`AreaCharts-${key}`} width={500} height={100} data={info} margin={{ right: 0 }}>
             <Tooltip content={<CustomTooltip />} />
             <Area dataKey="num" type="monotone" stroke="#81d100" fill="#1aaad6" />
         </AreaChart>

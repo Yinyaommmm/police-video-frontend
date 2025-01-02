@@ -1,8 +1,6 @@
 import { calcNeedTime } from "@/utils";
-import { div } from "framer-motion/client";
-import React, { FC } from "react"
+import { FC } from "react"
 import styled from "styled-components";
-import { twMerge } from "tailwind-merge";
 interface TimeButtonProperty {
     second: number
     playAt: (second: number) => void

@@ -20,7 +20,7 @@ export const Home: FC = () => {
   }, []);
 
   return (
-    <div className="max-w-[100vw] min-h-[100vh] ">
+    <div className="max-w-[100vw] min-h-[100vh]">
       {/* <Login /> */}
       <Loading />
       <Message />

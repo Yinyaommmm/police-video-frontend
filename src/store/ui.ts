@@ -1,7 +1,7 @@
 import { model } from "@/packages/model";
 
 export interface UIModel {
-  task: "transfer" | "player";
+  task: "transfer" | "player" | "portrait" | "enhance" | "aging";
   menu: boolean;
   loading: boolean;
   loadingCover: boolean;
