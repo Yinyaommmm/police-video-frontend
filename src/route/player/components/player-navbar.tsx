@@ -4,7 +4,6 @@ import { ItemsIcon, VideoUploadIcon, ForbiddenIcon } from "@/assets/icons";
 import { api } from "@/api";
 import { calcNeedTime, createEventsTNURL } from "@/utils";
 import { BackEndIP } from "@/config";
-import { video } from "framer-motion/client";
 
 
 export const PlayerNavBar: FC = () => {
@@ -123,7 +122,7 @@ export const PlayerNavBar: FC = () => {
     <div className="mb-2">
       <h2 className="text-white flex mb-2">
         <span className="text-xl ">{videoName.length < + 50 ? videoName : videoName.slice(0, 50) + "..."}</span>
-        <div
+        {/* <div
           className=" ml-auto mr-4 bg-[#1f2429] border-none  rounded-[1000px] 
         hover:bg-[#2e363d] hover:cursor-pointer"
         >
@@ -142,7 +141,7 @@ export const PlayerNavBar: FC = () => {
             选择本地视频
           </div>
 
-        </div>
+        </div> */}
       </h2>
       <div className="flex h-6 items-center ">
         <div className="text-white flex text-xs mr-3"><ItemsIcon className="mr-1" /> <div className="h-5 leading-5">{eventsNum > 0 ? eventsNum : '...'}</div></div>

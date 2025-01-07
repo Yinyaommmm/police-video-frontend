@@ -33,8 +33,6 @@ export const EventList: FC<EventListProperty> = ({ playVideoAt }) => {
           <TextDiv className="mr-3 bg-[linear-gradient(135deg,#52ffba_9.27%,#23faec_46.96%,#0af_88.5%)]">事件节点</TextDiv>
           <DividerIcon className="text-sm h-4 fill-[#47d4ff] relative top-[1px]" /></div>
       </div>
-
-
       <motion.div
         className="w-[300px] h-[calc(100%-55px)] overflow-y-scroll overflow-x-hidden custom-scrollbar
         "
@@ -51,7 +49,7 @@ export const EventList: FC<EventListProperty> = ({ playVideoAt }) => {
             initial="hidden"
             animate="visible"
             exit="exit"
-            transition={{ duration: 1.2, delay: index * 0.14 }}
+            transition={{ duration: 1.2, delay: index < 10 ? index * 0.14 : 1.4 }}
           >
             <img src={info.imgSrc} alt="" className="w-[100%] max-h-40 rounded-lg" />
             <TimeLeftButton second={info.beginSecond} playAt={playVideoAt} />

@@ -1,9 +1,11 @@
 import { api } from "@/api";
+import { DeleteIcon } from "@/assets/icons";
 import { $PR } from "@/store/player";
 import { $UI } from "@/store/ui";
 import { $VT } from "@/store/videotransfer";
 import { calcNeedTime, calcSize, calcSpeed } from "@/utils";
-import { type FC } from "react";
+import { motion } from "framer-motion";
+import { useState, type FC } from "react";
 import { v4 as uuidv4 } from "uuid";
 export interface VideoCardProps {
   isLast?: boolean;
@@ -18,6 +20,7 @@ export const VideoCard: FC<VideoCardProps> = ({
   time = "04:15:20",
   title = "2024年12月8日南京东路至长江西2024年12月8日南京东路至长江西2024年12月8日南京东路至长江西",
 }) => {
+  const [hover, setHover] = useState(false)
   const downloadVideo = async () => {
     const uniID = uuidv4();
     $VT.update("creae new download", (state) => {
@@ -82,15 +85,33 @@ export const VideoCard: FC<VideoCardProps> = ({
   }
   return (
     <div
-      id="video-card-1"
-      className={`w-[calc(24%)] h-[204px] bg-red-50 rounded-lg relative ${isLast ? "mr-0" : "mr-4"} cursor-pointer`}
+      className={`select-none w-[calc(24%)] h-[204px] bg-red-50 rounded-lg relative ${isLast ? "mr-0" : "mr-4"} cursor-pointer`}
       onClick={jumpToWatch}
+      onMouseEnter={() => {
+        setHover(true);
+      }}
+      onMouseLeave={() => {
+        setHover(false);
+      }}
     >
       <div
         className=" box-border w-full h-6 bg-video_time_background absolute top-0 rounded-lg
-           text-white text-sm px-2 py-1 line-clamp-2 leading-[16px] "
+           text-white text-sm px-2 py-1 line-clamp-2 leading-[16px] flex"
       >
-        时长：{time}
+        <div>时长：{time}</div>
+        {hover && <motion.div
+          className="ml-auto w-4 text-center bg-black rounded-md scale-150 hover:bg-slate-600"
+          initial={{ opacity: 0 }} // 初始透明度为 0
+          animate={{ opacity: 1 }} // 鼠标悬停时显示
+          transition={{ duration: 0.3 }} // 平滑的动画过渡
+          whileHover={{ opacity: 1 }} // 当鼠标悬停在该元素时显示图标
+          onClick={(e) => {
+            e.stopPropagation();
+            console.log(123);
+          }}
+        >
+          <DeleteIcon className="text-red-500 align-center" />
+        </motion.div>}
       </div>
       <img
         src={imgSrc}
