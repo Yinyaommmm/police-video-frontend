@@ -8,6 +8,7 @@ export interface UIModel {
   login: boolean;
   messageContent: string;
   messageDisplay: boolean;
+  
 }
 
 export const $UI = model<UIModel>("UI", {
@@ -18,4 +19,5 @@ export const $UI = model<UIModel>("UI", {
   login: false,
   messageContent: "",
   messageDisplay: false,
+ 
 });

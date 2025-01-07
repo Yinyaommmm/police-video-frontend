@@ -28,6 +28,11 @@ export interface WidthHeightRes{
   height : number
 }
 
+export type VideoStatusRes = {
+  "video_name":string
+  "completed":boolean
+}[]
+
 const LengthSelectorKeyMap = new Map<LengthSelector,number|undefined>([['1hour',3600],['2hour',7200],['halfhour',1800],['alllength',undefined]])
 
 export const api = {
@@ -172,12 +177,41 @@ export const api = {
       return res
     },
     widthAndHeight : async(filename:string) :Promise<WidthHeightRes> =>{
-      const res: WidthHeightRes  = await instance.get("video_s/views",{
+      const res: WidthHeightRes  = await instance.get("video_s/height_width",{
         params:{
-          filename
+          video_name:filename
         }
       })
       return res;
+    },
+    deleteVideo:async(filename:string):Promise<void>=>{
+      const res = await instance.delete("video_s/delete",{
+        params:{
+          video_name:filename
+        }
+      })   
+    },
+    handleStatus : async(page : number,
+      customTime:[null|dayjs.Dayjs,null|dayjs.Dayjs],
+      customLength:LengthSelector):Promise<VideoStatusRes>=>{
+      const perpage = 8
+      const start_time = customTime[0]
+        ? customTime[0].set('hour', 0).set('minute', 0).set('second', 0).format('YYYY-MM-DDTHH:mm:ss')
+        : undefined;
+      const end_time = customTime[1]
+        ? customTime[1].set('hour', 23).set('minute', 59).set('second', 59).format('YYYY-MM-DDTHH:mm:ss')
+        : undefined;
+      const length = LengthSelectorKeyMap.get(customLength)
+      const res :VideoStatusRes= await instance.get("video_s/status",{
+        params:{
+          skip:page,
+          limit:perpage,
+          start_time,
+          end_time,
+          length
+        }
+      })
+      return res
     }
    }
 };

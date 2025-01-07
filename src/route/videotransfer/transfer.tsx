@@ -7,6 +7,7 @@ import { VideoNavBar } from "@/route/videotransfer/components/video-navbar";
 import { $VT } from "@/store/videotransfer";
 import { calcNeedTime, createTransferTNURL } from "@/utils";
 import { useEffect, type FC } from "react";
+import Modal from "./components/modal";
 
 export const Transfer: FC = () => {
   const currentPage = $VT.use((state) => state.curPage);
@@ -31,16 +32,30 @@ export const Transfer: FC = () => {
       }))
     })
   };
+  const videoStatus = $VT.use(state => state.videoStatus)
+  console.log(videoStatus)
+  const loadVideoStatus = async () => {
+    const res = await api.transfer.handleStatus(currentPage, customTime, customLength)
+    $VT.update("set video status", state => {
+      state.videoStatus = res
+    })
+  }
+  const setPageContent = async () => {
+    await Promise.all([fetchThumbnail(), loadVideoStatus()])
+  }
   useEffect(() => {
-    fetchThumbnail()
+    setPageContent()
   }, [currentPage]);
 
   useEffect(() => {
-    fetchThumbnail()
+    setPageContent()
     $VT.update('back to page 1', state => {
       state.curPage = 1
     })
   }, [customTime, customLength])
+  // modal控制
+  const showModal = $VT.use(state => state.showModal)
+  const modalFileName = $VT.use(state => state.modalFileName)
   return (
 
     < div className="flex-grow relative mx-8 " >
@@ -52,7 +67,9 @@ export const Transfer: FC = () => {
         </div>
         <div id="line " className="flex mb-5 flex-wrap w-[82vw] mx-auto ">
           {videoCardArr.map((card, index) => {
-            return <VideoCard key={card.name} time={card.time} imgSrc={card.image} title={card.name} isLast={(index + 1) % 4 === 0} />
+            return <VideoCard key={card.name} time={card.time} imgSrc={card.image} title={card.name}
+              dealing={videoStatus.find(s => s.video_name === card.name)?.completed === true ? false : true}
+              isLast={(index + 1) % 4 === 0} />
           })}
           {/* <VideoCard time="02:15" />
           <VideoCard time="03:15" />
@@ -98,6 +115,28 @@ export const Transfer: FC = () => {
             下一页
           </button>
         </div>
+        <Modal
+          title="确认删除此视频吗？该操作无法撤回"
+          isOpen={showModal}
+          onConfirm={async (e) => {
+            e.stopPropagation()
+
+            if (modalFileName !== "") {
+              await api.transfer.deleteVideo(modalFileName)
+              await setPageContent()
+            }
+            $VT.update('close modal', (state) => {
+              state.showModal = false
+              state.modalFileName = ""
+            })
+          }}
+          onClose={(e) => {
+            e.stopPropagation()
+            $VT.update('close modal', (state) => {
+              state.showModal = false
+              state.modalFileName = ""
+            })
+          }}></Modal>
         <TransferBoard />
       </div>
     </div >

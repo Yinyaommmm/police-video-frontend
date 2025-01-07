@@ -6,6 +6,7 @@ import { $UI } from "@/store/ui";
 import { Message } from "@/components/message";
 import { Transfer } from "../videotransfer/transfer";
 import { Player } from "@/route/player/index";
+import { Modal } from "antd";
 
 export const Home: FC = () => {
   const task = $UI.use((state) => state.task);

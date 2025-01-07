@@ -1,9 +1,9 @@
 import { api } from "@/api";
-import { DeleteIcon } from "@/assets/icons";
+import { DeleteIcon, DownloadIcon, UploadIcon } from "@/assets/icons";
 import { $PR } from "@/store/player";
 import { $UI } from "@/store/ui";
 import { $VT } from "@/store/videotransfer";
-import { calcNeedTime, calcSize, calcSpeed } from "@/utils";
+import { calcNeedTime, calcSize, calcSpeed, createTransferTNURL } from "@/utils";
 import { motion } from "framer-motion";
 import { useState, type FC } from "react";
 import { v4 as uuidv4 } from "uuid";
@@ -12,6 +12,7 @@ export interface VideoCardProps {
   imgSrc?: string;
   time?: string;
   title?: string;
+  dealing?: boolean
 }
 
 export const VideoCard: FC<VideoCardProps> = ({
@@ -19,6 +20,7 @@ export const VideoCard: FC<VideoCardProps> = ({
   imgSrc = "src/assets/fortest/video-default.png",
   time = "04:15:20",
   title = "2024年12月8日南京东路至长江西2024年12月8日南京东路至长江西2024年12月8日南京东路至长江西",
+  dealing = true
 }) => {
   const [hover, setHover] = useState(false)
   const downloadVideo = async () => {
@@ -83,9 +85,13 @@ export const VideoCard: FC<VideoCardProps> = ({
       state.videoName = title
     }))
   }
+
   return (
     <div
-      className={`select-none w-[calc(24%)] h-[204px] bg-red-50 rounded-lg relative ${isLast ? "mr-0" : "mr-4"} cursor-pointer`}
+      className={`select-none w-[calc(24%)] h-[204px] bg-red-50 rounded-lg relative 
+        ${isLast ? "mr-0" : "mr-4"}  
+        ${dealing ? 'opacity-50 pointer-events-none grayscale filter brightness-75 ' : 'cursor-pointer'}
+        `}
       onClick={jumpToWatch}
       onMouseEnter={() => {
         setHover(true);
@@ -100,18 +106,36 @@ export const VideoCard: FC<VideoCardProps> = ({
       >
         <div>时长：{time}</div>
         {hover && <motion.div
-          className="ml-auto w-4 text-center bg-black rounded-md scale-150 hover:bg-slate-600"
+          className="ml-auto mr-4 w-4 text-center bg-black rounded-md scale-150 hover:bg-slate-600"
           initial={{ opacity: 0 }} // 初始透明度为 0
           animate={{ opacity: 1 }} // 鼠标悬停时显示
           transition={{ duration: 0.3 }} // 平滑的动画过渡
           whileHover={{ opacity: 1 }} // 当鼠标悬停在该元素时显示图标
-          onClick={(e) => {
+          onClick={async (e) => {
             e.stopPropagation();
-            console.log(123);
+            downloadVideo()
           }}
+        >
+          <DownloadIcon className="text-white align-center" />
+        </motion.div>}
+        {hover && <motion.div
+          className=" w-4 text-center bg-black rounded-md scale-150 hover:bg-slate-600"
+          initial={{ opacity: 0 }} // 初始透明度为 0
+          animate={{ opacity: 1 }} // 鼠标悬停时显示
+          transition={{ duration: 0.3 }} // 平滑的动画过渡
+          whileHover={{ opacity: 1 }} // 当鼠标悬停在该元素时显示图标
+          onClick={async (e) => {
+            e.stopPropagation();
+            $VT.update('open modal', (state) => {
+              state.showModal = true
+              state.modalFileName = title
+            })
+          }}
+
         >
           <DeleteIcon className="text-red-500 align-center" />
         </motion.div>}
+
       </div>
       <img
         src={imgSrc}
@@ -125,6 +149,8 @@ export const VideoCard: FC<VideoCardProps> = ({
       >
         {title}
       </div>
+
+
     </div >
   );
 };

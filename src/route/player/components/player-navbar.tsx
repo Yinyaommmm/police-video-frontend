@@ -58,6 +58,7 @@ export const PlayerNavBar: FC = () => {
 
   useEffect(() => {
     loadVideo(videoName)
+
   }, [videoName])
 
   const handleLocalVideoChange = async (
@@ -77,6 +78,7 @@ export const PlayerNavBar: FC = () => {
         const originPlayerHeight = 572
         // 宽占主导
         const widthDominant = width / height > originPlayerWidth / originPlayerHeight
+
         // 播放视频信息设置
         $PR.update('jol init & upload video to play', (state) => {
           state.videoName = localVideo.name

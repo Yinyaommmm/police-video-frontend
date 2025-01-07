@@ -1,3 +1,4 @@
+import { VideoStatusRes } from "@/api";
 import { model } from "@/packages/model";
 import dayjs from 'dayjs';
 export type TimeSelector = "alldays" | "custom-time-choose";
@@ -28,7 +29,10 @@ export interface VideoTransferModel {
   boardVisible: boolean;
   boardSelector: BoardSelector;
   transferArray: ITransferItem[];
-  videoCardArray : IVideoCardItem[]
+  videoCardArray : IVideoCardItem[],
+  showModal :boolean
+  modalFileName : string
+  videoStatus : VideoStatusRes
 }
 
 export const $VT = model<VideoTransferModel>("UI", {
@@ -96,5 +100,8 @@ export const $VT = model<VideoTransferModel>("UI", {
     //   uniID: "AA6",
     // },
   ],
-  videoCardArray:[]
+  videoCardArray:[],
+  showModal:false,
+  modalFileName : "",
+  videoStatus:[]
 });
