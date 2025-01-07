@@ -4,19 +4,19 @@ import { Menu } from "./components/menu";
 import { Loading } from "@/components/loading";
 import { $UI } from "@/store/ui";
 import { Message } from "@/components/message";
-import { Transfer } from "./components/transfer";
+import { Transfer } from "../videotransfer/transfer";
 import { Player } from "@/route/player/index";
 
 export const Home: FC = () => {
   const task = $UI.use((state) => state.task);
   useEffect(() => {
-    if (localStorage.getItem("token") === "") {
-      $UI.update("un login", (draft) => {
-        draft.login = false;
-        draft.messageContent = "登录状态失效，请重新登录";
-        draft.messageDisplay = true;
-      });
-    }
+    // if (localStorage.getItem("token") === "") {
+    //   $UI.update("un login", (draft) => {
+    //     draft.login = false;
+    //     draft.messageContent = "登录状态失效，请重新登录";
+    //     draft.messageDisplay = true;
+    //   });
+    // }
   }, []);
 
   return (

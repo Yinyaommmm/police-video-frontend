@@ -10,7 +10,7 @@ import { TagSpan } from "./tag-button";
 
 
 export const PlayerBody: FC = () => {
-  const videoSrc = $PR.use(state => state.videoSrc)
+  const videoSrc = $PR.use(state => state.jolOption.videoSrc)
   const videoRef = useRef<JoLPlayerRef>(null!);
   const statInfo = $PR.use(state => state.statisticalInfo)
   const playVideoAt = useCallback((second: number) => {

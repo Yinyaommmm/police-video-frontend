@@ -12,7 +12,6 @@ export interface TimeEvent {
 }
 export interface PlayerModel {
   videoName : string
-  videoSrc: string
   sliceInfoArr : SliceInfo[],
   jolOption:videoOption,
   statisticalInfo : EventsInfoRes,
@@ -21,7 +20,6 @@ export interface PlayerModel {
 
 export const $PR = model<PlayerModel>("PR", {
   videoName : "等待选择视频......",
-  videoSrc: "",
   sliceInfoArr : [],
   jolOption:{
     videoSrc:""

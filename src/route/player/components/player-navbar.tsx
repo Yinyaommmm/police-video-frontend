@@ -1,21 +1,72 @@
 import { $PR } from "@/store/player";
-import React, { useRef, type FC } from "react";
+import React, { useEffect, useRef, type FC } from "react";
 import { ItemsIcon, VideoUploadIcon, ForbiddenIcon } from "@/assets/icons";
 import { api } from "@/api";
 import { calcNeedTime, createEventsTNURL } from "@/utils";
+import { BackEndIP } from "@/config";
+import { video } from "framer-motion/client";
 
 
 export const PlayerNavBar: FC = () => {
   const videoName = $PR.use((state) => state.videoName);
   const eventsNum = $PR.use(state => state.sliceInfoArr.length)
   const localVideoRef = useRef<HTMLInputElement>(null)
+  // 当视频名字变化时加载视频
+  const loadVideo = async (videoName: string) => {
+    // 获取视频宽高、统计信息、事件
+    if (videoName === "等待选择视频......") {
+      return;
+    }
+    const [statRes, eventRes, whRes] = await Promise.all([
+      api.transfer.statistics(videoName, 200),
+      api.transfer.timeEvents(videoName), api.transfer.widthAndHeight(videoName)])
+
+    // 设置视频播放器
+    const { width, height } = whRes
+    const originPlayerWidth = 935
+    const originPlayerHeight = 572
+    // 宽占主导
+    const widthDominant = width / height > originPlayerWidth / originPlayerHeight
+    $PR.update('set together', (state) => {
+      // 视频
+      state.jolOption = {
+        width: widthDominant ? originPlayerWidth : undefined,
+        height: widthDominant ? undefined : originPlayerHeight,
+        mode: widthDominant ? 'widthFix' : 'heightFix',
+        videoSrc: `${BackEndIP}api/v1/video_s/video_stream?video_name=${videoName}`,
+        isShowWebFullScreen: false,
+        isShowPicture: widthDominant,
+        isShowSet: widthDominant,
+        theme: "#47d4ff"
+      }
+      // 统计信息
+      state.statisticalInfo = statRes
+      // 右侧事件
+      state.sliceInfoArr = eventRes.map(item => ({
+        imgSrc: createEventsTNURL(item.ScreenShot),
+        beginSecond: item.StartTime,
+        endSecond: item.EndTime,
+      }))
+      // tag
+      state.tagInfo = [
+        `原始时长 ${calcNeedTime(statRes.total_time)}`,
+        `压缩后时长 ${calcNeedTime(statRes.processed_time)}`,
+        `事件总数 ${eventRes.length}`,
+        `运动事件 ${(eventRes.filter(i => i.Event === "运动").length)}`,
+      ]
+    })
+  }
+
+  useEffect(() => {
+    loadVideo(videoName)
+  }, [videoName])
+
   const handleLocalVideoChange = async (
     e: React.ChangeEvent<HTMLInputElement>,
   ): Promise<void> => {
     if (e.target.files !== null && e.target.files?.length !== 0) {
       const localVideo = e.target.files[0]
       const videoUrl = URL.createObjectURL(localVideo);
-
       // 创建一个隐藏的video标签去感知宽高
       const video = document.createElement('video');
       video.preload = 'metadata';
@@ -29,7 +80,6 @@ export const PlayerNavBar: FC = () => {
         const widthDominant = width / height > originPlayerWidth / originPlayerHeight
         // 播放视频信息设置
         $PR.update('jol init & upload video to play', (state) => {
-          state.videoSrc = videoUrl
           state.videoName = localVideo.name
           state.jolOption = {
             width: widthDominant ? originPlayerWidth : undefined,
@@ -66,7 +116,6 @@ export const PlayerNavBar: FC = () => {
             // `FrameDiff ${eventRes.filter(i => i.Method === "FrameDiff").length}`
           ]
         })
-        // console.log(`视频宽度: ${ width }, 视频高度: ${ height } `);
       };
     }
   }
@@ -80,7 +129,7 @@ export const PlayerNavBar: FC = () => {
         >
           <input type="file" hidden
             ref={localVideoRef}
-            onChange={handleLocalVideoChange}
+            // onChange={handleLocalVideoChange}
             accept="video/*" />
           <div
             className=" relative text-white text-sm font-medium py-1.5 px-4"

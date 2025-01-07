@@ -7,7 +7,7 @@ import { api } from "@/api";
 import { type AxiosProgressEvent } from "axios";
 import { calcNeedTime, calcSize, calcSpeed } from "@/utils";
 import { v4 as uuidv4 } from "uuid";
-import { showMessage } from "./message";
+import { showMessage } from "../../../components/message";
 
 export const TransferBoard: FC = () => {
   const typeItems: Array<{ name: string; key: BoardSelector }> = [

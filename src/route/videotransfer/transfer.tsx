@@ -1,37 +1,46 @@
 import { api } from "@/api";
-import { LengthSelectors } from "@/components/length-selector";
-import { TimeSelectors } from "@/components/time-selector";
-import { TransferBoard } from "@/components/transfer-board";
-import { VideoCard } from "@/components/video-card";
-import { VideoNavBar } from "@/components/video-navbar";
+import { LengthSelectors } from "@/route/videotransfer/components/length-selector";
+import { TimeSelectors } from "@/route/videotransfer/components/time-selector";
+import { TransferBoard } from "@/route/videotransfer/components/transfer-board";
+import { VideoCard } from "@/route/videotransfer/components/video-card";
+import { VideoNavBar } from "@/route/videotransfer/components/video-navbar";
 import { $VT } from "@/store/videotransfer";
 import { calcNeedTime, createTransferTNURL } from "@/utils";
-import React, { useEffect, type FC } from "react";
+import { useEffect, type FC } from "react";
 
 export const Transfer: FC = () => {
   const currentPage = $VT.use((state) => state.curPage);
   const totalPage = $VT.use((state) => state.totalPage);
   const perPage = $VT.use(state => state.perPage)
   const videoCardArr = $VT.use(state => state.videoCardArray)
-  useEffect(() => {
-    const fetchThumbnail = async () => {
-      const res = await api.transfer.thumbnailList(currentPage)
-      const caclTotalPage = Math.ceil(res.total_num / perPage)
-      if (caclTotalPage !== totalPage) {
-        $VT.update("change total", (state) => {
-          state.totalPage = caclTotalPage
-        })
-      }
-      $VT.update("update video", (state) => {
-        state.videoCardArray = res.thumbnail_list.map(item => ({
-          image: createTransferTNURL(item.url),
-          name: item.filename,
-          time: calcNeedTime(item.time)
-        }))
+  const customTime = $VT.use(state => state.customTime)
+  const customLength = $VT.use(state => state.lengthSelector)
+  const fetchThumbnail = async () => {
+    const res = await api.transfer.thumbnailList(currentPage, customTime, customLength)
+    const caclTotalPage = Math.ceil(res.total_num / perPage)
+    if (caclTotalPage !== totalPage) {
+      $VT.update("change total", (state) => {
+        state.totalPage = caclTotalPage
       })
-    };
+    }
+    $VT.update("update video", (state) => {
+      state.videoCardArray = res.thumbnail_list.map(item => ({
+        image: createTransferTNURL(item.url),
+        name: item.filename,
+        time: calcNeedTime(item.time)
+      }))
+    })
+  };
+  useEffect(() => {
     fetchThumbnail()
   }, [currentPage]);
+
+  useEffect(() => {
+    fetchThumbnail()
+    $VT.update('back to page 1', state => {
+      state.curPage = 1
+    })
+  }, [customTime, customLength])
   return (
 
     < div className="flex-grow relative mx-8 " >

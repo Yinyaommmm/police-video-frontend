@@ -11,7 +11,7 @@ export interface UIModel {
 }
 
 export const $UI = model<UIModel>("UI", {
-  task: "player",
+  task: "transfer",
   menu: true,
   loading: false,
   loadingCover: false,

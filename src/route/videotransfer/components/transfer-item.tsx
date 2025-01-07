@@ -49,8 +49,8 @@ export const TransferItem: FC<TransferItemProps> = ({
       )}
 
       <div data-type="rightContent" className="w-80 h-14 mx-auto">
-        <div className="text-white h-7 w-full leading-7 line-clamp-1">
-          {title}
+        <div className="text-white h-7 w-full leading-7 line-clamp-1" title={title}>
+          {title.length < 30 ? title : title.slice(0, 30) + "..."}
         </div>
         <div
           data-type="description"

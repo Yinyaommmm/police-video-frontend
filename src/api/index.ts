@@ -3,6 +3,8 @@ import { type AxiosProgressEvent } from "axios";
 import instance from "./axios";
 import instance_long from "./axios_long";
 import { TimeEvent } from "@/store/player";
+import dayjs from "dayjs";
+import { LengthSelector } from "@/store/videotransfer";
 interface IThumbnail {
   total_num:number,
   thumbnail_list: {filename:string,url:string,time:number}[]
@@ -20,6 +22,13 @@ export type TimeEventsRes = {
     "Event": string
     "Method": string
 }[]
+
+export interface WidthHeightRes{
+  width : number
+  height : number
+}
+
+const LengthSelectorKeyMap = new Map<LengthSelector,number|undefined>([['1hour',3600],['2hour',7200],['halfhour',1800],['alllength',undefined]])
 
 export const api = {
   age: (
@@ -113,12 +122,25 @@ export const api = {
         },
       );
     },
-    thumbnailList:async(page : number):Promise<IThumbnail> =>{
+    thumbnailList:async(
+      page : number,
+      customTime:[null|dayjs.Dayjs,null|dayjs.Dayjs],
+      customLength:LengthSelector):Promise<IThumbnail> =>{
       const perPage = 8
+      const start_time = customTime[0]
+        ? customTime[0].set('hour', 0).set('minute', 0).set('second', 0).format('YYYY-MM-DDTHH:mm:ss')
+        : undefined;
+      const end_time = customTime[1]
+        ? customTime[1].set('hour', 23).set('minute', 59).set('second', 59).format('YYYY-MM-DDTHH:mm:ss')
+        : undefined;
+      const length = LengthSelectorKeyMap.get(customLength)
       return await instance.get("video_s/views" ,{
         params:{
           skip:(page-1)*perPage,
-          limit:perPage
+          limit:perPage,
+          start_time,
+          end_time,
+          length
         }
       })
    },
@@ -148,6 +170,14 @@ export const api = {
         }
       })
       return res
+    },
+    widthAndHeight : async(filename:string) :Promise<WidthHeightRes> =>{
+      const res: WidthHeightRes  = await instance.get("video_s/views",{
+        params:{
+          filename
+        }
+      })
+      return res;
     }
    }
 };

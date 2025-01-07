@@ -3,40 +3,68 @@
 @tailwind utilities;
 
 body {
-    margin: 0;
-    scrollbar-width: none;
-    font-family: Inter, -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "noto sans", "Microsoft YaHei", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  margin: 0;
+  scrollbar-width: none;
+  font-family:
+    Inter,
+    -apple-system,
+    BlinkMacSystemFont,
+    "PingFang SC",
+    "Hiragino Sans GB",
+    "noto sans",
+    "Microsoft YaHei",
+    "Helvetica Neue",
+    Helvetica,
+    Arial,
+    sans-serif;
 }
 
 textarea:focus {
-    outline: none;
-    box-shadow: none;
+  outline: none;
+  box-shadow: none;
 }
 @layer utilities {
-    .scrollbar-hidden {
-      -ms-overflow-style: none; 
-      scrollbar-width: none; 
-    }
-  
-    .scrollbar-hidden::-webkit-scrollbar {
-      display: none; 
-    }
+  .scrollbar-hidden {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
   }
 
-  .custom-scrollbar::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+  .scrollbar-hidden::-webkit-scrollbar {
+    display: none;
   }
-  
-  .custom-scrollbar::-webkit-scrollbar-thumb {
-    background-color: #dfe1e3;
-    border-radius: 10px;
+}
+@layer components {
+  .ant-picker-silent {
+    background-color: rgb(51 58 69);
   }
-  
-  .custom-scrollbar::-webkit-scrollbar-track {
-    background-color: #0d1116;
+  .ant-picker-highlight {
+    background: linear-gradient(89.86deg, #a7ff1a, #82fac2, #47d4ff);
   }
-  
-  .custom-scrollbar::-webkit-scrollbar-button {
-    display: none; /* 隐藏上下三角形按钮 */
-  }
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #dfe1e3;
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background-color: #0d1116;
+}
+
+.custom-scrollbar::-webkit-scrollbar-button {
+  display: none; /* 隐藏上下三角形按钮 */
+}
+
+.ant-picker-input > input {
+  text-align: center !important;
+  font-weight: 700;
+  cursor: pointer;
+}
+.ant-picker-input > input::placeholder {
+  color: rgb(114, 116, 133) !important;
+}

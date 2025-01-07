@@ -1,7 +1,7 @@
 import { model } from "@/packages/model";
-import { useId } from "react";
-export type TimeSelector = "alldays" | "lastday" | "lastweek" | "halfyear";
-export type LengthSelector = "alllength" | "1hour" | "4hour" | "4hourup";
+import dayjs from 'dayjs';
+export type TimeSelector = "alldays" | "custom-time-choose";
+export type LengthSelector = "alllength" | "halfhour" | "1hour" | "2hour";
 export type BoardSelector = "all" | "up" | "down";
 export interface ITransferItem {
   type: "up" | "down";
@@ -20,6 +20,7 @@ export interface IVideoCardItem {
 
 export interface VideoTransferModel {
   timeSelector: TimeSelector;
+  customTime : [null | dayjs.Dayjs,null | dayjs.Dayjs];
   lengthSelector: LengthSelector;
   curPage: number;
   totalPage: number;
@@ -32,6 +33,7 @@ export interface VideoTransferModel {
 
 export const $VT = model<VideoTransferModel>("UI", {
   timeSelector: "alldays",
+  customTime : [null,null],
   lengthSelector: "alllength",
   curPage: 1,
   totalPage: 5,
