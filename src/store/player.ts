@@ -16,6 +16,7 @@ export interface PlayerModel {
   jolOption:videoOption,
   statisticalInfo : EventsInfoRes,
   tagInfo : string[]
+  playProgressRatio : number
 }
 
 export const $PR = model<PlayerModel>("PR", {
@@ -30,5 +31,6 @@ export const $PR = model<PlayerModel>("PR", {
     info:[],
     processed_time:0
   },
-  tagInfo:[]
+  tagInfo:[],
+  playProgressRatio : 0
 });

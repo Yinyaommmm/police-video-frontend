@@ -47,7 +47,6 @@ export const AreaCharts: FC<AreaChartsProps> = ({ info, click }) => {
         }
     };
     return <ResponsiveContainer width="100%" height="100%" ref={scope} >
-
         <AreaChart onClick={handleChartClick} key={`AreaCharts-${key}`} width={500} height={100} data={info} margin={{ right: 0 }}>
             <Tooltip content={<CustomTooltip />} />
             <Area dataKey="num" type="monotone" stroke="#81d100" fill="#1aaad6" />

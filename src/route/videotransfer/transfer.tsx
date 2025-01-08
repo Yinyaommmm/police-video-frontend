@@ -33,7 +33,6 @@ export const Transfer: FC = () => {
     })
   };
   const videoStatus = $VT.use(state => state.videoStatus)
-  console.log(videoStatus)
   const loadVideoStatus = async () => {
     const res = await api.transfer.handleStatus(currentPage, customTime, customLength)
     $VT.update("set video status", state => {
@@ -103,7 +102,6 @@ export const Transfer: FC = () => {
             className={`font-bold bg-button_normal_background border-none rounded-xl min-w-24 h-[34px] ml-8 
               ${currentPage === totalPage ? "cursor-not-allowed opacity-50" : "cursor-pointer hover:bg-button_hover_background"}`}
             onClick={() => {
-              console.log(currentPage, totalPage)
               if (currentPage !== totalPage) {
                 // todo : 请求下一页内容
                 $VT.update("last page", (state) => {

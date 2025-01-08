@@ -3,9 +3,10 @@ import { useCallback, useRef, type FC } from "react";
 import { DefaultImage } from "@/assets/image";
 import { EventList } from "./event-list";
 import { motion } from "framer-motion";
-import JolPlayer, { JoLPlayerRef } from "jol-player";
+import JolPlayer, { JoLPlayerRef, videoAttributes } from "jol-player";
 import { AreaCharts } from "./area-chart";
 import { TagSpan } from "./tag-button";
+import { ChartMask } from "./chart-mask";
 
 
 
@@ -29,7 +30,11 @@ export const PlayerBody: FC = () => {
             <motion.div
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.5 }}
               className="w-[935px] h-[572px] bg-black flex justify-center items-center"  >
-              <JolPlayer key="jol-video" ref={videoRef} option={jolOption} />
+              <JolPlayer key="jol-video" ref={videoRef} option={jolOption} onTimeChange={(v: videoAttributes) => {
+                $PR.update('play progress', (state) => {
+                  state.playProgressRatio = v.currentTime / v.duration
+                })
+              }} />
             </motion.div>
           ) : (
             <motion.div className="w-[520px] mx-auto mt-[200px]" key="default" layout="position" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.5 }}>
@@ -40,8 +45,9 @@ export const PlayerBody: FC = () => {
               </div>
             </motion.div >
           )}
-          <div className="w-[935px] h-[40px] " >
+          <div className="w-[935px] h-[40px] relative " >
             <AreaCharts processed_time={statInfo.processed_time} info={statInfo.info} total_time={statInfo.total_time} split={statInfo.split} click={playVideoAt} />
+            <ChartMask ></ChartMask>
           </div>
           <div className="w-[935px] h-[40px] mt-2 flex items-center" >
             {tagInfo.map(info => <TagSpan key={info} content={info}></TagSpan>)}

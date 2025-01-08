@@ -18,7 +18,8 @@ export const PlayerNavBar: FC = () => {
     }
     const [statRes, eventRes, whRes] = await Promise.all([
       api.transfer.statistics(videoName, 200),
-      api.transfer.timeEvents(videoName), api.transfer.widthAndHeight(videoName)])
+      api.transfer.timeEvents(videoName),
+      api.transfer.widthAndHeight(videoName)])
 
     // 设置视频播放器
     const { width, height } = whRes
@@ -28,6 +29,7 @@ export const PlayerNavBar: FC = () => {
     const widthDominant = width / height > originPlayerWidth / originPlayerHeight
     $PR.update('set together', (state) => {
       // 视频
+      state.playProgressRatio = 0
       state.jolOption = {
         width: widthDominant ? originPlayerWidth : undefined,
         height: widthDominant ? undefined : originPlayerHeight,
@@ -36,10 +38,15 @@ export const PlayerNavBar: FC = () => {
         isShowWebFullScreen: false,
         isShowPicture: widthDominant,
         isShowSet: widthDominant,
-        theme: "#47d4ff"
+        theme: "#47d4ff",
       }
       // 统计信息
-      state.statisticalInfo = statRes
+      state.statisticalInfo = {
+        total_time: statRes.total_time,
+        split: statRes.split,
+        info: statRes.info.slice(0, Math.min(200, statRes.total_time)),
+        processed_time: statRes.processed_time
+      }
       // 右侧事件
       state.sliceInfoArr = eventRes.map(item => ({
         imgSrc: createEventsTNURL(item.ScreenShot),
