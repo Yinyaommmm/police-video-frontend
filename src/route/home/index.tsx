@@ -28,8 +28,10 @@ export const Home: FC = () => {
       <NavBar />
       <div className="flex min-h-[calc(100vh-68px)] bg-main_background ">
         <Menu />
+
         {task === "transfer" && <Transfer />}
         {task === "player" && <Player />}
+
       </div>
       {/* <div
         className="fixed bottom-0 left-0 w-[100vw] h-[118px] 

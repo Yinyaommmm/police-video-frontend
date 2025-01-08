@@ -4,7 +4,7 @@ import { PlayerBody } from "./components/player-body";
 
 export const Player: FC = () => {
   return (
-    <div className="flex-grow relative mx-8 ">
+    <div className="flex-grow relative mx-8 max-w-[calc(100vw-200px)]">
       <PlayerNavBar />
       <PlayerBody />
     </div>

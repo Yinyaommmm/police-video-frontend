@@ -204,7 +204,7 @@ export const api = {
       const length = LengthSelectorKeyMap.get(customLength)
       const res :VideoStatusRes= await instance.get("video_s/status",{
         params:{
-          skip:page,
+          skip:(page-1)*perpage,
           limit:perpage,
           start_time,
           end_time,

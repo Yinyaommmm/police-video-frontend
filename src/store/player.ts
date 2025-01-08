@@ -17,10 +17,6 @@ export interface PlayerModel {
   statisticalInfo : EventsInfoRes,
   tagInfo : string[]
   playProgressRatio : number
-  videoContainer:{
-    width:number,
-    height:number
-  }
 }
 
 export const $PR = model<PlayerModel>("PR", {
@@ -37,8 +33,4 @@ export const $PR = model<PlayerModel>("PR", {
   },
   tagInfo:[],
   playProgressRatio : 0,
-  videoContainer:{
-    width: 0,
-    height:0
-  }
 });

@@ -14,7 +14,6 @@ import { calcNeedTime, createEventsTNURL } from "@/utils";
 export const PlayerBody: FC = () => {
   const videoSrc = $PR.use(state => state.jolOption.videoSrc)
   const videoName = $PR.use(state => state.videoName)
-  const videoContainer = $PR.use(state => state.videoContainer)
   const videoRef = useRef<JoLPlayerRef>(null!);
   const statInfo = $PR.use(state => state.statisticalInfo)
   const playVideoAt = useCallback((second: number) => {
@@ -28,27 +27,8 @@ export const PlayerBody: FC = () => {
 
   // 控制宽高
   const containerRef = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    const handleResize = () => {
-      console.log(containerRef.current, videoContainer)
-      if (containerRef.current) {
-        const { width, height } = containerRef.current.getBoundingClientRect();
-        $PR.update('set video container h&w', (state) => {
-          state.videoContainer = {
-            width, height
-          }
-
-        })
-      }
-    };
-    window.addEventListener('resize', handleResize);
-    handleResize();
-    return () => window.removeEventListener('resize', handleResize);
-  }, [videoContainer.width, videoContainer.height]);
 
   // 当视频名字变化时加载视频
-  const containerWidth = $PR.use(state => state.videoContainer.width)
-  const containerHeight = $PR.use(state => state.videoContainer.height)
   const loadVideo = async (videoName: string) => {
     // 获取视频宽高、统计信息、事件
     if (videoName === "等待选择视频......") {
@@ -60,19 +40,19 @@ export const PlayerBody: FC = () => {
       api.transfer.widthAndHeight(videoName)])
 
     // 设置视频播放器
-    const { width, height } = whRes
+    const { width, height } = whRes // 原始视频的宽高
+    const { width: containerWidth, height: containerHeight } = containerRef.current?.getBoundingClientRect() || {}
     const aspect = 1.77
     // 宽占主导
     const widthDominant = width / height > aspect
+    // console.log('设置视频宽高时 container w h', containerWidth, containerHeight)
     $PR.update('set together', (state) => {
       // 视频
       state.playProgressRatio = 0
-      console.log(containerWidth)
-      console.log(containerHeight)
       state.jolOption = {
-        width: widthDominant ? containerWidth : undefined,
-        height: widthDominant ? undefined : containerHeight,
-        mode: widthDominant ? 'widthFix' : 'heightFix',
+        width: containerWidth,
+        height: containerHeight,
+        mode: 'widthFix',
         videoSrc: `${BackEndIP}api/v1/video_s/video_stream?video_name=${videoName}`,
         isShowWebFullScreen: false,
         isShowPicture: widthDominant,
@@ -102,37 +82,78 @@ export const PlayerBody: FC = () => {
       ]
     })
   }
+  useLayoutEffect(() => {
+    if (containerRef.current) {
+      const containerWidth = containerRef.current.getBoundingClientRect().width
+      const containerHeight = Math.floor((containerWidth) / 1.77)
+      containerRef.current.style.height = `${containerHeight}px`
+      // console.log('设置了高度', containerHeight, '宽度', containerWidth, 'ratio', containerWidth / containerHeight)
+      // console.log('c', videoRef.current ?? null)
+      loadVideo(videoName)
+    } else {
+      console.log('log null ref');
+    }
+  }, [containerRef.current, videoName])
 
-  useEffect(() => {
-    loadVideo(videoName)
-  }, [videoName, containerWidth, containerHeight])
-
+  // 调整
+  useLayoutEffect(() => {
+    const startTime = new Date()
+    const interval = setInterval(() => {
+      const ele = document.querySelector('#JoL-player-container') as HTMLDivElement
+      const now = new Date()
+      const delta = now.getTime() - startTime.getTime()
+      if (delta > 2000) {
+        console.log('rectify time exceed')
+        clearInterval(interval)
+      }
+      if (ele === null || containerRef.current === null) {
+        return
+      }
+      const { width, height } = containerRef.current?.getBoundingClientRect()
+      if (ele!.style.height !== `${containerRef.current?.getBoundingClientRect().height}px`) {
+        ele!.style.width = width + 'px'
+        ele!.style.height = height + 'px'
+        console.log('do rectification')
+        clearInterval(interval)
+      }
+    }, 100);
+  })
   return (
     <div >
-      <div className="flex ">
-        <div id="yb" className="w-full h-full overflow-x-hidden overflow-y-scroll  scrollbar-none" >
-          {videoSrc !== "" ? (
-            <motion.div
-              id="oopp"
-              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.5 }}
-              className="min-w-[668px] min-h-[376px] max-w-full aspect-[1.77] mr-4
-               bg-black flex justify-center items-center" ref={containerRef}  >
-              <JolPlayer key="jol-video" ref={videoRef} option={jolOption}
-                onTimeChange={(v: videoAttributes) => {
-                  $PR.update('play progress', (state) => {
-                    state.playProgressRatio = v.currentTime / v.duration
-                  })
-                }} />
-            </motion.div>
-          ) : (
-            <motion.div className="w-[520px] mx-auto mt-[200px]" key="default" layout="position" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.5 }}>
-              <DefaultImage />
-              <div className="text-[#c5c7d5] text-center text-lg select-none">
-                请在视频传输页面选择 <span className="text-[#a7ff1a]">服务器端视频  </span>
-                或在本页面选择 <span className="text-[#47d4ff]">本地视频</span>
-              </div>
-            </motion.div >
-          )}
+      {/* <button className="absolute w-10 h-10 bg-red-300 z-50" onClick={() => {
+        const { width: containerWidth, height: containerHeight } = containerRef.current?.getBoundingClientRect() || {}
+        console.log(containerWidth, containerHeight)
+      }}>获取信息</button>
+      <button className="absolute w-10 h-10 bg-red-300 z-50 left-40" onClick={() => {
+        console.log(jolOption)
+
+      }}>获取信息</button> */}
+      <div className="flex max-w-full">
+        <div className="w-full h-auto overflow-x-hidden overflow-y-scroll  scrollbar-none" >
+          <div id="video-container" className="min-w-[668px] max-w-[950px] my-0 flex" ref={containerRef} >
+            {videoSrc !== "" && containerRef.current !== null ? (
+              <motion.div
+                id="motiondiv"
+                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.5 }}
+                className=" w-full h-full  mx-auto
+               bg-black flex justify-center items-center"   >
+                <JolPlayer key="jol-video" ref={videoRef} option={jolOption}
+                  onTimeChange={(v: videoAttributes) => {
+                    $PR.update('play progress', (state) => {
+                      state.playProgressRatio = v.currentTime / v.duration
+                    })
+                  }} />
+              </motion.div>
+            ) : (
+              <motion.div className="w-[520px] mx-auto mt-[200px]" key="default" layout="position" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.5 }}>
+                <DefaultImage />
+                <div className="text-[#c5c7d5] text-center text-lg select-none">
+                  请在视频传输页面选择 <span className="text-[#a7ff1a]">服务器端视频  </span>
+                  或在本页面选择 <span className="text-[#47d4ff]">本地视频</span>
+                </div>
+              </motion.div >
+            )}
+          </div>
           <div className="w-full h-10 relative mt-2" >
             <AreaCharts processed_time={statInfo.processed_time} info={statInfo.info} total_time={statInfo.total_time} split={statInfo.split} click={playVideoAt} />
             <ChartMask ></ChartMask>
