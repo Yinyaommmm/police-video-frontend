@@ -10,63 +10,7 @@ export const PlayerNavBar: FC = () => {
   const videoName = $PR.use((state) => state.videoName);
   const eventsNum = $PR.use(state => state.sliceInfoArr.length)
   const localVideoRef = useRef<HTMLInputElement>(null)
-  // 当视频名字变化时加载视频
-  const loadVideo = async (videoName: string) => {
-    // 获取视频宽高、统计信息、事件
-    if (videoName === "等待选择视频......") {
-      return;
-    }
-    const [statRes, eventRes, whRes] = await Promise.all([
-      api.transfer.statistics(videoName, 200),
-      api.transfer.timeEvents(videoName),
-      api.transfer.widthAndHeight(videoName)])
 
-    // 设置视频播放器
-    const { width, height } = whRes
-    const originPlayerWidth = 935
-    const originPlayerHeight = 572
-    // 宽占主导
-    const widthDominant = width / height > originPlayerWidth / originPlayerHeight
-    $PR.update('set together', (state) => {
-      // 视频
-      state.playProgressRatio = 0
-      state.jolOption = {
-        width: widthDominant ? originPlayerWidth : undefined,
-        height: widthDominant ? undefined : originPlayerHeight,
-        mode: widthDominant ? 'widthFix' : 'heightFix',
-        videoSrc: `${BackEndIP}api/v1/video_s/video_stream?video_name=${videoName}`,
-        isShowWebFullScreen: false,
-        isShowPicture: widthDominant,
-        isShowSet: widthDominant,
-        theme: "#47d4ff",
-      }
-      // 统计信息
-      state.statisticalInfo = {
-        total_time: statRes.total_time,
-        split: statRes.split,
-        info: statRes.info.slice(0, Math.min(200, statRes.total_time)),
-        processed_time: statRes.processed_time
-      }
-      // 右侧事件
-      state.sliceInfoArr = eventRes.map(item => ({
-        imgSrc: createEventsTNURL(item.ScreenShot),
-        beginSecond: item.StartTime,
-        endSecond: item.EndTime,
-      }))
-      // tag
-      state.tagInfo = [
-        `原始时长 ${calcNeedTime(statRes.total_time)}`,
-        `压缩后时长 ${calcNeedTime(statRes.processed_time)}`,
-        `事件总数 ${eventRes.length}`,
-        `运动事件 ${(eventRes.filter(i => i.Event === "运动").length)}`,
-      ]
-    })
-  }
-
-  useEffect(() => {
-    loadVideo(videoName)
-
-  }, [videoName])
 
   const handleLocalVideoChange = async (
     e: React.ChangeEvent<HTMLInputElement>,
