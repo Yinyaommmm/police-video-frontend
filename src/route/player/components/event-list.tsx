@@ -1,9 +1,10 @@
 import { $PR } from "@/store/player";
-import { type FC } from "react";
+import { HTMLProps, type FC } from "react";
 import { DividerIcon } from "@/assets/icons";
 import styled from "styled-components";
 import { TimeLeftButton, TimeRightButton } from "./time-button";
 import { motion } from "framer-motion";
+import { twMerge } from "tailwind-merge";
 
 const TextDiv = styled.div`
   background-clip: text;
@@ -11,8 +12,9 @@ const TextDiv = styled.div`
   -webkit-text-fill-color: transparent;
   font-weight: 800;
 `;
-interface EventListProperty {
-  playVideoAt: (second: number) => void
+interface EventListProperty extends HTMLProps<HTMLDivElement> {
+  playVideoAt: (second: number) => void,
+  height: number
 }
 
 // 动画配置
@@ -22,11 +24,11 @@ const itemVariants = {
   exit: { opacity: 0, x: -20 }
 };
 
-export const EventList: FC<EventListProperty> = ({ playVideoAt }) => {
+export const EventList: FC<EventListProperty> = ({ playVideoAt, height = 1052, style, ...rest }) => {
   const sliceInfoArr = $PR.use(state => state.sliceInfoArr)
-  return (
 
-    <div className="w-[300px] h-[652px] mx-auto">
+  return (
+    <div className={twMerge(`min-w-[300px] max-w-[360px] mx-4`)} style={{ maxHeight: height, ...style }} {...rest}>
       <div className="p-4 bg-card_background backdrop-blur-[6px]  
         rounded-md border border-solid border-border_card overflow-hidden">
         <div className="text-white flex items-center">
@@ -34,8 +36,7 @@ export const EventList: FC<EventListProperty> = ({ playVideoAt }) => {
           <DividerIcon className="text-sm h-4 fill-[#47d4ff] relative top-[1px]" /></div>
       </div>
       <motion.div
-        className="w-[300px] h-[calc(100%-55px)] overflow-y-scroll overflow-x-hidden custom-scrollbar
-        "
+        className="w-full h-[calc(100%-55px)] overflow-y-scroll overflow-x-hidden custom-scrollbar"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
@@ -51,7 +52,7 @@ export const EventList: FC<EventListProperty> = ({ playVideoAt }) => {
             exit="exit"
             transition={{ duration: 1.2, delay: index < 10 ? index * 0.14 : 1.4 }}
           >
-            <img src={info.imgSrc} alt="" className="w-[100%] max-h-40 rounded-lg" />
+            <img src={info.imgSrc} alt="" className="w-[100%] rounded-lg" />
             <TimeLeftButton second={info.beginSecond} playAt={playVideoAt} />
             <TimeRightButton second={info.endSecond} playAt={playVideoAt} />
           </motion.div>

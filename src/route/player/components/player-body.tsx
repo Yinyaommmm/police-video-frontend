@@ -1,5 +1,5 @@
 import { $PR } from "@/store/player";
-import { ReactHTMLElement, useCallback, useEffect, useLayoutEffect, useRef, type FC } from "react";
+import { ReactHTMLElement, useCallback, useEffect, useLayoutEffect, useRef, useState, type FC } from "react";
 import { DefaultImage } from "@/assets/image";
 import { EventList } from "./event-list";
 import { motion } from "framer-motion";
@@ -9,7 +9,7 @@ import { TagSpan } from "./tag-button";
 import { ChartMask } from "./chart-mask";
 import { api } from "@/api";
 import { BackEndIP } from "@/config";
-import { calcNeedTime, createEventsTNURL } from "@/utils";
+import { calcNeedTime, createEventsTNURL, debounce } from "@/utils";
 
 export const PlayerBody: FC = () => {
   const videoSrc = $PR.use(state => state.jolOption.videoSrc)
@@ -24,16 +24,18 @@ export const PlayerBody: FC = () => {
   }, [videoRef.current]);
   const jolOption = $PR.use(state => state.jolOption)
   const tagInfo = $PR.use(state => state.tagInfo)
+  const [videoWidth, setVideoWidth] = useState<number>(1200)
 
   // 控制宽高
   const containerRef = useRef<HTMLDivElement>(null);
 
   // 当视频名字变化时加载视频
-  const loadVideo = async (videoName: string) => {
+  const loadVideo = debounce(async (videoName: string) => {
     // 获取视频宽高、统计信息、事件
     if (videoName === "等待选择视频......") {
       return;
     }
+    console.log('视频')
     const [statRes, eventRes, whRes] = await Promise.all([
       api.transfer.statistics(videoName, 200),
       api.transfer.timeEvents(videoName),
@@ -53,7 +55,7 @@ export const PlayerBody: FC = () => {
         width: containerWidth,
         height: containerHeight,
         mode: 'widthFix',
-        videoSrc: `${BackEndIP}api/v1/video_s/video_stream?video_name=${videoName}`,
+        videoSrc: `api/v1/video_s/video_stream?video_name=${videoName}`,
         isShowWebFullScreen: false,
         isShowPicture: widthDominant,
         isShowSet: widthDominant,
@@ -81,7 +83,9 @@ export const PlayerBody: FC = () => {
         `运动事件 ${(eventRes.filter(i => i.Event === "运动").length)}`,
       ]
     })
-  }
+  }, 50)
+
+
   useLayoutEffect(() => {
     if (containerRef.current) {
       const containerWidth = containerRef.current.getBoundingClientRect().width
@@ -89,6 +93,7 @@ export const PlayerBody: FC = () => {
       containerRef.current.style.height = `${containerHeight}px`
       // console.log('设置了高度', containerHeight, '宽度', containerWidth, 'ratio', containerWidth / containerHeight)
       // console.log('c', videoRef.current ?? null)
+      setVideoWidth(containerWidth)
       loadVideo(videoName)
     } else {
       console.log('log null ref');
@@ -119,7 +124,7 @@ export const PlayerBody: FC = () => {
     }, 100);
   })
   return (
-    <div >
+    <div className=" w-full">
       {/* <button className="absolute w-10 h-10 bg-red-300 z-50" onClick={() => {
         const { width: containerWidth, height: containerHeight } = containerRef.current?.getBoundingClientRect() || {}
         console.log(containerWidth, containerHeight)
@@ -128,9 +133,9 @@ export const PlayerBody: FC = () => {
         console.log(jolOption)
 
       }}>获取信息</button> */}
-      <div className="flex max-w-full">
-        <div className="w-full h-auto overflow-x-hidden overflow-y-scroll  scrollbar-none" >
-          <div id="video-container" className="min-w-[668px] max-w-[950px] my-0 flex" ref={containerRef} >
+      <div className="flex w-full justify-between">
+        <div className=" h-auto overflow-x-hidden overflow-y-scroll  scrollbar-none flex-1 max-w-[1200px]  min-w-[800px]" >
+          <div id="video-container" className="min-w-[668px]  my-0 flex" ref={containerRef} >
             {videoSrc !== "" && containerRef.current !== null ? (
               <motion.div
                 id="motiondiv"
@@ -162,7 +167,9 @@ export const PlayerBody: FC = () => {
             {tagInfo.map(info => <TagSpan key={info} content={info}></TagSpan>)}
           </div>
         </div>
-        <EventList playVideoAt={playVideoAt} />
+        <EventList playVideoAt={playVideoAt} height={
+          containerRef.current ?
+            containerRef.current.getBoundingClientRect().height + 40 + 40 : 652} style={{ width: `calc(100vw - 200px - 32px - 20px - ${videoWidth}px)` }} />
       </div>
     </div >
 

@@ -5,7 +5,7 @@ import { TransferBoard } from "@/route/videotransfer/components/transfer-board";
 import { VideoCard } from "@/route/videotransfer/components/video-card";
 import { VideoNavBar } from "@/route/videotransfer/components/video-navbar";
 import { $VT } from "@/store/videotransfer";
-import { calcNeedTime, createTransferTNURL } from "@/utils";
+import { calcNeedTime, createTransferTNURL, throttle } from "@/utils";
 import { useEffect, type FC } from "react";
 import Modal from "./components/modal";
 
@@ -39,9 +39,10 @@ export const Transfer: FC = () => {
       state.videoStatus = res
     })
   }
-  const setPageContent = async () => {
+  const setPageContent = throttle(async () => {
     await Promise.all([fetchThumbnail(), loadVideoStatus()])
-  }
+  }, 500)
+
   useEffect(() => {
     setPageContent()
   }, [currentPage]);

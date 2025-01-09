@@ -37,16 +37,30 @@ export function calcNeedTime(estimated: number | undefined): string {
 }
 
 export function createTransferTNURL(fileName:string):string{
-  return `${BackEndIP}api/v1/video_s/image?filename=${fileName}`
+  return `api/v1/video_s/image?filename=${fileName}`
 }
 export function createEventsTNURL(fileName:string):string{
-  return `${BackEndIP}api/v1/video_s/ScreenShot?filename=${fileName}`
+  return `api/v1/video_s/ScreenShot?filename=${fileName}`
 }
 
 export function debounce<T extends (...args: any[]) => any>(func: T, wait: number): (...args: Parameters<T>) => void {
-  let timeout: NodeJS.Timeout | null;
+  let timeout: NodeJS.Timeout | null = null;
   return function(...args: Parameters<T>): void {
-    if (timeout !== null) clearTimeout(timeout);
-    timeout = setTimeout(() => func(args), wait);
+    if (timeout !== null) {clearTimeout(timeout); console.log('debounce')}
+    timeout = setTimeout(() => {func(...args);console.log('do了')}, wait);
+  };
+}
+
+export function throttle<T extends (...args: any[]) => any>(
+  func: T,
+  wait: number
+): (...args: Parameters<T>) => void {
+  let lastTime = 0;
+  return (...args: Parameters<T>): void => {
+    const now = Date.now();
+    if (now - lastTime > wait) {
+      func(...args);  // 直接调用 func，不需要 apply 和 this
+      lastTime = now;
+    }
   };
 }
