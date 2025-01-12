@@ -1,4 +1,3 @@
-import { BackEndIP } from "@/config";
 
 const GBLevel = 1024 * 1024 * 1024;
 const MBLevel = 1024 * 1024;
@@ -37,10 +36,10 @@ export function calcNeedTime(estimated: number | undefined): string {
 }
 
 export function createTransferTNURL(fileName:string):string{
-  return `api/v1/video_s/image?filename=${fileName}`
+  return `api/v1/video/image?filename=${fileName}`
 }
 export function createEventsTNURL(fileName:string):string{
-  return `api/v1/video_s/ScreenShot?filename=${fileName}`
+  return `api/v1/video/ScreenShot?filename=${fileName}`
 }
 
 export function debounce<T extends (...args: any[]) => any>(func: T, wait: number): (...args: Parameters<T>) => void {

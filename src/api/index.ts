@@ -112,14 +112,14 @@ export const api = {
       const formData = new FormData();
       formData.append("file", file); 
       formData.append("name", file.name); 
-      const response = await instance_long.post("/video_s/upload", formData, {
+      const response = await instance_long.post("/video/upload", formData, {
         onUploadProgress,
       });
       console.log(response);
     },
     existCheck: async (fileName: string): Promise<string> => {
       return await instance.get(
-        "video_s/exist",
+        "video/exist",
         {
           params:{
             video_name:fileName
@@ -139,7 +139,7 @@ export const api = {
         ? customTime[1].set('hour', 23).set('minute', 59).set('second', 59).format('YYYY-MM-DDTHH:mm:ss')
         : undefined;
       const length = LengthSelectorKeyMap.get(customLength)
-      return await instance.get("video_s/views" ,{
+      return await instance.get("video/views" ,{
         params:{
           skip:(page-1)*perPage,
           limit:perPage,
@@ -150,7 +150,7 @@ export const api = {
       })
    },
     download : async(filename : string,onDownloadProgress:(progressEvent: AxiosProgressEvent) => void):Promise<Blob>=>{
-      const res =  await instance_long.get("video_s/download",{
+      const res =  await instance_long.get("video/download",{
         params:{
           video_name : filename
         },
@@ -160,7 +160,7 @@ export const api = {
       return  res.data as Blob;
     },
     statistics : async(filename:string,event_num:number):Promise<EventsInfoRes> =>{
-      const res:EventsInfoRes =  await instance.get("video_s/events_info",{
+      const res:EventsInfoRes =  await instance.get("video/events_info",{
         params:{
           filename,
           num:event_num
@@ -169,7 +169,7 @@ export const api = {
       return res;
     },
     timeEvents : async(filename : string):Promise<TimeEventsRes>=>{
-      const res :TimeEventsRes=  await instance.get("video_s/events",{
+      const res :TimeEventsRes=  await instance.get("video/events",{
         params:{
           filename
         }
@@ -177,7 +177,7 @@ export const api = {
       return res
     },
     widthAndHeight : async(filename:string) :Promise<WidthHeightRes> =>{
-      const res: WidthHeightRes  = await instance.get("video_s/height_width",{
+      const res: WidthHeightRes  = await instance.get("video/height_width",{
         params:{
           video_name:filename
         }
@@ -185,7 +185,7 @@ export const api = {
       return res;
     },
     deleteVideo:async(filename:string):Promise<void>=>{
-      const res = await instance.delete("video_s/delete",{
+      const res = await instance.delete("video/delete",{
         params:{
           video_name:filename
         }
@@ -202,7 +202,7 @@ export const api = {
         ? customTime[1].set('hour', 23).set('minute', 59).set('second', 59).format('YYYY-MM-DDTHH:mm:ss')
         : undefined;
       const length = LengthSelectorKeyMap.get(customLength)
-      const res :VideoStatusRes= await instance.get("video_s/status",{
+      const res :VideoStatusRes= await instance.get("video/status",{
         params:{
           skip:(page-1)*perpage,
           limit:perpage,

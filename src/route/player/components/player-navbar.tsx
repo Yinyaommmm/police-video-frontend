@@ -3,7 +3,6 @@ import React, { useEffect, useRef, type FC } from "react";
 import { ItemsIcon, VideoUploadIcon, ForbiddenIcon } from "@/assets/icons";
 import { api } from "@/api";
 import { calcNeedTime, createEventsTNURL } from "@/utils";
-import { BackEndIP } from "@/config";
 
 
 export const PlayerNavBar: FC = () => {

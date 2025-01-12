@@ -8,7 +8,6 @@ import { AreaCharts } from "./area-chart";
 import { TagSpan } from "./tag-button";
 import { ChartMask } from "./chart-mask";
 import { api } from "@/api";
-import { BackEndIP } from "@/config";
 import { calcNeedTime, createEventsTNURL, debounce } from "@/utils";
 
 export const PlayerBody: FC = () => {
@@ -55,7 +54,7 @@ export const PlayerBody: FC = () => {
         width: containerWidth,
         height: containerHeight,
         mode: 'widthFix',
-        videoSrc: `api/v1/video_s/video_stream?video_name=${videoName}`,
+        videoSrc: `api/v1/video/video_stream?video_name=${videoName}`,
         isShowWebFullScreen: false,
         isShowPicture: widthDominant,
         isShowSet: widthDominant,
