@@ -1,10 +1,11 @@
 /* eslint-disable @typescript-eslint/promise-function-async */
-import { type AxiosProgressEvent } from "axios";
+import { Axios, type AxiosProgressEvent } from "axios";
 import instance from "./axios";
 import instance_long from "./axios_long";
 import { TimeEvent } from "@/store/player";
 import dayjs from "dayjs";
 import { LengthSelector } from "@/store/videotransfer";
+import { CHUNKSIZE } from "@/config";
 interface IThumbnail {
   total_num:number,
   thumbnail_list: {filename:string,url:string,time:number}[]
@@ -29,8 +30,10 @@ export interface WidthHeightRes{
 }
 
 export type VideoStatusRes = {
-  "video_name":string
-  "completed":boolean
+  video_name:string,
+  completed:boolean,
+  progress:number,
+  time_rest:number
 }[]
 
 const LengthSelectorKeyMap = new Map<LengthSelector,number|undefined>([['1hour',3600],['2hour',7200],['halfhour',1800],['alllength',undefined]])
@@ -46,7 +49,7 @@ export const api = {
     console.log("age", clear);
 
     const formData = new FormData();
-    files.forEach((image, index) => {
+    files.forEach((image) => {
       if (image !== undefined) {
         formData.append(`files`, image, image.name);
       }
@@ -115,7 +118,6 @@ export const api = {
       const response = await instance_long.post("/video/upload", formData, {
         onUploadProgress,
       });
-      console.log(response);
     },
     existCheck: async (fileName: string): Promise<string> => {
       return await instance.get(
@@ -213,5 +215,35 @@ export const api = {
       })
       return res
     }
-   }
+   },
+  transfer_chunk :{
+    createChunk(file:File){
+      const totalChunks = Math.ceil(file.size / CHUNKSIZE);
+      const chunkArr = []
+      for (let i = 0; i < totalChunks; i++) {
+        const start = i * CHUNKSIZE;
+        const end = Math.min(start + CHUNKSIZE, file.size);
+        const chunk = file.slice(start, end);
+        chunkArr.push(chunk)
+      }
+      return chunkArr
+    },
+    async uploadTotal(file:File, onUploadProgress:(progressEvent: AxiosProgressEvent,curIndex:number,totalNum:number) => void){
+      const chunkArr = this.createChunk(file)
+      for (let i = 0 ; i < chunkArr.length;i++){
+        const iProgress = (axiosProgress: AxiosProgressEvent) =>  {
+          onUploadProgress(axiosProgress,i+1,chunkArr.length)
+        }
+        await this.uploadChunk(file.name,chunkArr.length,i,chunkArr[i],iProgress)
+      }
+    },
+    async uploadChunk(fileName:string,totalNum:number,chunkIndex:number,chunk:Blob,onUploadProgress:(progressEvent: AxiosProgressEvent) => void):Promise<void>{
+      const formData = new FormData();
+      formData.append('file', chunk, `${fileName}.part${chunkIndex}`); // 确保作为文件对象传递
+      formData.append('name', fileName);
+      formData.append('total_chunks', totalNum.toString()); // 确保是字符串形式
+      formData.append('chunk_index', chunkIndex.toString());   // 确保是字符串形式
+      const res = await instance.post('/video/upload_chunk',formData,{onUploadProgress});
+    }
+  }
 };

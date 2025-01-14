@@ -17,6 +17,9 @@ export const Transfer: FC = () => {
   const customTime = $VT.use(state => state.customTime)
   const customLength = $VT.use(state => state.lengthSelector)
   const fetchThumbnail = async () => {
+    const currentPage = $VT.get().curPage
+    const customTime = $VT.get().customTime
+    const customLength = $VT.get().lengthSelector
     const res = await api.transfer.thumbnailList(currentPage, customTime, customLength)
     const caclTotalPage = Math.ceil(res.total_num / perPage)
     if (caclTotalPage !== totalPage) {
@@ -34,6 +37,9 @@ export const Transfer: FC = () => {
   };
   const videoStatus = $VT.use(state => state.videoStatus)
   const loadVideoStatus = async () => {
+    const currentPage = $VT.get().curPage
+    const customTime = $VT.get().customTime
+    const customLength = $VT.get().lengthSelector
     const res = await api.transfer.handleStatus(currentPage, customTime, customLength)
     $VT.update("set video status", state => {
       state.videoStatus = res
@@ -53,9 +59,16 @@ export const Transfer: FC = () => {
       state.curPage = 1
     })
   }, [customTime, customLength])
+  useEffect(() => {
+    setInterval(() => {
+      setPageContent()
+    }, 5000)
+  }, [])
+
   // modal控制
   const showModal = $VT.use(state => state.showModal)
   const modalFileName = $VT.use(state => state.modalFileName)
+
   return (
 
     < div className="flex-grow relative mx-8 " >
@@ -67,18 +80,21 @@ export const Transfer: FC = () => {
         </div>
         <div id="line " className="flex mb-5 flex-wrap w-[82vw] mx-auto ">
           {videoCardArr.map((card, index) => {
+            let item = videoStatus.find(s => s.video_name === card.name)!
+            if (item === undefined) {
+              item = {
+                completed: false,
+                progress: 0,
+                time_rest: 0,
+                video_name: ''
+              }
+            }
             return <VideoCard key={card.name} time={card.time} imgSrc={card.image} title={card.name}
-              dealing={videoStatus.find(s => s.video_name === card.name)?.completed === true ? false : true}
+              dealing={!item.completed}
+              progress={item.progress}
+              estimate={item.time_rest}
               isLast={(index + 1) % 4 === 0} />
           })}
-          {/* <VideoCard time="02:15" />
-          <VideoCard time="03:15" />
-          <VideoCard time="04:15" />
-          <VideoCard time="05:15" isLast />
-          <VideoCard time="02:15" />
-          <VideoCard time="03:15" />
-          <VideoCard time="04:15" />
-          <VideoCard time="05:15" isLast /> */}
         </div>
 
         <div id="pagination" className="w-full flex justify-center ">
@@ -105,6 +121,7 @@ export const Transfer: FC = () => {
             onClick={() => {
               if (currentPage !== totalPage) {
                 // todo : 请求下一页内容
+                console.log(totalPage, currentPage)
                 $VT.update("last page", (state) => {
                   state.curPage = state.curPage + 1;
                 });

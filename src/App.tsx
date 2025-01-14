@@ -5,6 +5,7 @@ import { Home } from "./route/home";
 const App: FC = () => {
   return (
     <div className="" >
+
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Home />} />

@@ -1,5 +1,6 @@
 import React, { ReactNode, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { $VT } from '@/store/videotransfer';
 
 interface ModalProps {
     isOpen: boolean;
@@ -43,11 +44,15 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, onConfirm, title, childr
                                 onClick={async (e) => {
                                     if (!debounceLock.current) {
                                         debounceLock.current = true
+                                        onClose(e)
                                         await onConfirm(e)
-                                        debounceLock.current = false
+                                        setTimeout(() => {
+                                            debounceLock.current = false
+                                        }, 1000)
                                     }
                                 }}
                                 className="font-bold bg-button_normal_background border-none rounded-xl min-w-24 h-[34px] mr-8 cursor-pointer hover:bg-button_hover_background"
+                                disabled={debounceLock.current}
                             >
                                 确定
                             </button>

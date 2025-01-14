@@ -33,6 +33,7 @@ export interface VideoTransferModel {
   showModal :boolean
   modalFileName : string
   videoStatus : VideoStatusRes
+
 }
 
 export const $VT = model<VideoTransferModel>("UI", {
@@ -40,7 +41,7 @@ export const $VT = model<VideoTransferModel>("UI", {
   customTime : [null,null],
   lengthSelector: "alllength",
   curPage: 1,
-  totalPage: 5,
+  totalPage: 1,
   perPage:8,
   boardVisible: false,
   boardSelector: "all",
@@ -103,5 +104,6 @@ export const $VT = model<VideoTransferModel>("UI", {
   videoCardArray:[],
   showModal:false,
   modalFileName : "",
-  videoStatus:[]
+  videoStatus:[],
+      
 });

@@ -5,9 +5,10 @@ import { twMerge } from "tailwind-merge";
 import { TransferItem } from "./transfer-item";
 import { api } from "@/api";
 import { type AxiosProgressEvent } from "axios";
-import { calcNeedTime, calcSize, calcSpeed } from "@/utils";
+import { calcNeedTime, calcNeetTimeFactory, calcSize, calcSpeed, calcSpeedFactory } from "@/utils";
 import { v4 as uuidv4 } from "uuid";
 import { showMessage } from "../../../components/message";
+import { UploadIcon } from "@/assets/icons";
 
 export const TransferBoard: FC = () => {
   const typeItems: Array<{ name: string; key: BoardSelector }> = [
@@ -20,6 +21,107 @@ export const TransferBoard: FC = () => {
   const curItem = $VT.use((state) => state.boardSelector);
   const boardVisible = $VT.use((state) => state.boardVisible);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const upload_Whole = async (video: File) => {
+    const uniID = uuidv4();
+    $VT.update("create new upload", (state) => {
+      state.transferArray = [
+        ...state.transferArray,
+        {
+          type: "up",
+          speed: "计算中...",
+          title: video.name,
+          size: calcSize(video.size),
+          needTime: "计算中...",
+          progress: 0.01,
+          uniID,
+        },
+      ];
+    });
+
+    // 布置好上传的回调函数
+    await api.transfer.upload(video, (progressEvent: AxiosProgressEvent) => {
+      // 上传速度 预期时间
+      const progressItem = $VT
+        .get()
+        .transferArray.find((item) => item.uniID === uniID);
+      if (progressItem === undefined) {
+        return;
+      }
+      $VT.update("upload progress", (state) => {
+        state.transferArray = state.transferArray.map(
+          (item) =>
+            item.uniID === uniID
+              ? {
+                ...item,
+                ...progressItem,
+                speed: calcSpeed(progressEvent.rate),
+                needTime: calcNeedTime(progressEvent.estimated),
+                progress: progressEvent.progress ?? 0.01,
+              }
+              : item, // 如果不是要更新的任务，则保留原样
+        );
+      });
+    });
+    // 删除上传好的
+    $VT.update("delete uploaded video", (state) => {
+      state.transferArray = state.transferArray.filter(
+        (item) => item.uniID !== uniID,
+      );
+    });
+  }
+  const upload_ByChunk = async (video: File) => {
+    const uniID = uuidv4();
+    $VT.update("create new upload", (state) => {
+      state.transferArray = [
+        ...state.transferArray,
+        {
+          type: "up",
+          speed: "计算中...",
+          title: video.name,
+          size: calcSize(video.size),
+          needTime: "计算中...",
+          progress: 0.01,
+          uniID,
+        },
+      ];
+    });
+
+    const calcNeedTimeByChunk = calcNeetTimeFactory()
+    const calcSpeedByChunk = calcSpeedFactory()
+    // 布置好上传的回调函数
+    await api.transfer_chunk.uploadTotal(video,
+      (progressEvent: AxiosProgressEvent,
+        curIndex: number, // 从1开始的
+        totalNum: number) => {
+        // 上传速度 预期时间
+        const progressItem = $VT
+          .get()
+          .transferArray.find((item) => item.uniID === uniID);
+        if (progressItem === undefined) {
+          return;
+        }
+        $VT.update("upload chunk progress", (state) => {
+          state.transferArray = state.transferArray.map(
+            (item) =>
+              item.uniID === uniID
+                ? {
+                  ...item,
+                  ...progressItem,
+                  speed: calcSpeedByChunk(progressEvent.bytes, curIndex, totalNum),
+                  needTime: calcNeedTimeByChunk(progressEvent.estimated, curIndex, totalNum),
+                  progress: (curIndex - 1 + (progressEvent.progress ?? 0.01)) / totalNum,
+                }
+                : item, // 如果不是要更新的任务，则保留原样
+          );
+        });
+      });
+    // 删除上传board中的条目
+    $VT.update("delete uploaded video", (state) => {
+      state.transferArray = state.transferArray.filter(
+        (item) => item.uniID !== uniID,
+      );
+    });
+  }
   const handleFileChange = async (
     e: React.ChangeEvent<HTMLInputElement>,
   ): Promise<void> => {
@@ -38,52 +140,8 @@ export const TransferBoard: FC = () => {
         showMessage("已经上传过该文件");
         return;
       }
-      const uniID = uuidv4();
-      $VT.update("create new upload", (state) => {
-        state.transferArray = [
-          ...state.transferArray,
-          {
-            type: "up",
-            speed: "计算中...",
-            title: video.name,
-            size: calcSize(video.size),
-            needTime: "计算中...",
-            progress: 0.01,
-            uniID,
-          },
-        ];
-      });
-
-      // 布置好上传的回调函数
-      await api.transfer.upload(video, (progressEvent: AxiosProgressEvent) => {
-        // 上传速度 预期时间
-        const progressItem = $VT
-          .get()
-          .transferArray.find((item) => item.uniID === uniID);
-        if (progressItem === undefined) {
-          return;
-        }
-        $VT.update("upload progress", (state) => {
-          state.transferArray = state.transferArray.map(
-            (item) =>
-              item.uniID === uniID
-                ? {
-                  ...item,
-                  ...progressItem,
-                  speed: calcSpeed(progressEvent.rate),
-                  needTime: calcNeedTime(progressEvent.estimated),
-                  progress: progressEvent.progress ?? 0.01,
-                }
-                : item, // 如果不是要更新的任务，则保留原样
-          );
-        });
-      });
-      // 删除上传好的
-      $VT.update("delete uploaded video", (state) => {
-        state.transferArray = state.transferArray.filter(
-          (item) => item.uniID !== uniID,
-        );
-      });
+      // await upload_Whole(video)
+      await upload_ByChunk(video)
     }
   };
   return (
@@ -127,14 +185,14 @@ export const TransferBoard: FC = () => {
             />
             <div
               className="ml-auto font-bold text-md cursor-pointer min-w-32 text-center h-8 leading-8
-            bg-button_normal_background hover:bg-button_hover_background rounded-md"
+            bg-button_normal_background hover:bg-button_hover_background rounded-md flex justify-evenly"
               onClick={() => {
                 if (fileInputRef.current !== null) {
                   fileInputRef.current.click();
                 }
               }}
             >
-              ➕上传新视频
+              <UploadIcon className="h-8 ml-1" /> <div className="mr-1">上传新视频</div>
             </div>
           </div>
           <AnimatePresence>

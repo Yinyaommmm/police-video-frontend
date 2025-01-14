@@ -14,6 +14,7 @@ import ItemsIcon from './icon-items.svg?react'
 import VideoUploadIcon from './icon-video-upload.svg?react'
 import ForbiddenIcon from './icon-forbidden.svg?react'
 import DividerIcon from './icon-divider.svg?react'
+import RoundProgressSVG from './round-progress.svg?react'
 export {
   FoldIcon,
   UnFoldIcon,
@@ -30,5 +31,6 @@ export {
   ItemsIcon,
   VideoUploadIcon,
   ForbiddenIcon,
-  DividerIcon
+  DividerIcon,
+  RoundProgressSVG
 };

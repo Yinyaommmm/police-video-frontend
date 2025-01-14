@@ -34,7 +34,6 @@ export const PlayerBody: FC = () => {
     if (videoName === "等待选择视频......") {
       return;
     }
-    console.log('视频')
     const [statRes, eventRes, whRes] = await Promise.all([
       api.transfer.statistics(videoName, 200),
       api.transfer.timeEvents(videoName),
@@ -83,7 +82,6 @@ export const PlayerBody: FC = () => {
       ]
     })
   }, 50)
-
 
   useLayoutEffect(() => {
     if (containerRef.current) {
