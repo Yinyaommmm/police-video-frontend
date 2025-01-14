@@ -6,6 +6,7 @@ import { TimeEvent } from "@/store/player";
 import dayjs from "dayjs";
 import { LengthSelector } from "@/store/videotransfer";
 import { CHUNKSIZE } from "@/config";
+import { CompleteStatus } from "@/route/videotransfer/transfer";
 interface IThumbnail {
   total_num:number,
   thumbnail_list: {filename:string,url:string,time:number}[]
@@ -31,7 +32,7 @@ export interface WidthHeightRes{
 
 export type VideoStatusRes = {
   video_name:string,
-  completed:boolean,
+  completed:CompleteStatus,
   progress:number,
   time_rest:number
 }[]
@@ -214,6 +215,14 @@ export const api = {
         }
       })
       return res
+    },
+    addTask:async(fileName:string):Promise<void>=>{
+      const res = await instance.post("video/add_task",undefined,{
+        params:{
+          video_name:fileName
+        }
+      })
+      console.log(res)
     }
    },
   transfer_chunk :{

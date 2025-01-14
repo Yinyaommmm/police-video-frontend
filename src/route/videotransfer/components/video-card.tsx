@@ -1,5 +1,5 @@
 import { api } from "@/api";
-import { DeleteIcon, DownloadIcon, UploadIcon } from "@/assets/icons";
+import { DeleteIcon, DownloadIcon, ReloadIcon, UploadIcon } from "@/assets/icons";
 import { $PR } from "@/store/player";
 import { $UI } from "@/store/ui";
 import { $VT } from "@/store/videotransfer";
@@ -10,12 +10,14 @@ import { div } from "framer-motion/client";
 import { useState, type FC } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { RoundProgress } from "./round-progress";
+import { CompleteStatus } from "../transfer";
+import { showMessage } from "@/components/message";
 export interface VideoCardProps {
   isLast?: boolean;
   imgSrc?: string;
   time?: string;
   title?: string;
-  dealing?: boolean
+  complete?: CompleteStatus
   progress?: number,
   estimate?: number
 }
@@ -25,7 +27,7 @@ export const VideoCard: FC<VideoCardProps> = ({
   imgSrc = "src/assets/fortest/video-default.png",
   time = "04:15:20",
   title = "2024年12月8日南京东路至长江西2024年12月8日南京东路至长江西2024年12月8日南京东路至长江西",
-  dealing = true,
+  complete = CompleteStatus.AWaitHandling,
   progress = 0,
   estimate = 3601
 }) => {
@@ -93,11 +95,9 @@ export const VideoCard: FC<VideoCardProps> = ({
     }))
   }
   return (
-    <div className={`box-border select-none w-[calc(24%)] aspect-[1.77] bg-red-50 rounded-lg relative mb-4
+    <div className={`box-border select-none w-[calc(23.5%)] aspect-[1.77] bg-red-50 rounded-lg relative mb-4
      ${isLast ? "mr-0" : "mr-4"} `} >
       <div
-        className={`${dealing ? 'opacity-50 pointer-events-none grayscale filter brightness-75 ' : 'cursor-pointer'}
-        `}
         onClick={jumpToWatch}
         onMouseEnter={() => {
           setHover(true);
@@ -108,44 +108,69 @@ export const VideoCard: FC<VideoCardProps> = ({
       >
         <div
           className=" box-border w-full h-6 bg-video_time_background absolute top-0 rounded-lg
-           text-white text-sm px-2 py-1 line-clamp-2 leading-[16px] flex"
+           text-white text-sm px-2 py-1 line-clamp-2 leading-[16px] flex justify-between items-center"
         >
           <div>时长：{time}</div>
-          {hover && <motion.div
-            className="ml-auto mr-4 w-4 text-center bg-black rounded-md scale-150 hover:bg-slate-600"
-            initial={{ opacity: 0 }} // 初始透明度为 0
-            animate={{ opacity: 1 }} // 鼠标悬停时显示
-            transition={{ duration: 0.3 }} // 平滑的动画过渡
-            whileHover={{ opacity: 1 }} // 当鼠标悬停在该元素时显示图标
-            onClick={async (e) => {
-              e.stopPropagation();
-              downloadVideo()
-            }}
-          >
-            <DownloadIcon className="text-white align-center" />
-          </motion.div>}
-          {hover && <motion.div
-            className=" w-4 text-center bg-black rounded-md scale-150 hover:bg-slate-600"
-            initial={{ opacity: 0 }} // 初始透明度为 0
-            animate={{ opacity: 1 }} // 鼠标悬停时显示
-            transition={{ duration: 0.3 }} // 平滑的动画过渡
-            whileHover={{ opacity: 1 }} // 当鼠标悬停在该元素时显示图标
-            onClick={async (e) => {
-              e.stopPropagation();
-              $VT.update('open modal', (state) => {
-                state.showModal = true
-                state.modalFileName = title
-              })
-            }}
-          >
-            <DeleteIcon className="text-red-500 align-center" />
-          </motion.div>}
+          <div className="flex items-center gap-4">
+            {/* 只有完成状态允许下载 */}
+            {hover && (complete === CompleteStatus.Finished) &&
+              <motion.div
+                className="w-4 text-center bg-black rounded-md scale-150 hover:bg-slate-600 cursor-pointer"
+                initial={{ opacity: 0 }} // 初始透明度为 0
+                animate={{ opacity: 1 }} // 鼠标悬停时显示
+                transition={{ duration: 0.3 }} // 平滑的动画过渡
+                whileHover={{ opacity: 1 }} // 当鼠标悬停在该元素时显示图标
+                onClick={async (e) => {
+                  e.stopPropagation();
+                  downloadVideo()
+                }}
+              >
+                <DownloadIcon className="text-white align-center" />
+              </motion.div>}
+            {/* 只有错误状态允许手动添加到队列 */}
+            {hover && (complete === CompleteStatus.ErrorHandled) &&
+              <motion.div
+                className=" w-4 text-center bg-black rounded-md scale-150 hover:bg-slate-600 cursor-pointer"
+                initial={{ opacity: 0 }} // 初始透明度为 0
+                animate={{ opacity: 1 }} // 鼠标悬停时显示
+                transition={{ duration: 0.3 }} // 平滑的动画过渡
+                whileHover={{ opacity: 1 }} // 当鼠标悬停在该元素时显示图标
+                onClick={async (e) => {
+                  e.stopPropagation();
+                  showMessage("正在重新将该任务添加到视频处理任务队列中..")
+                  await api.transfer.addTask(title)
+                }}
+              >
+                <ReloadIcon className="text-white align-center scale-[0.875] " />
+              </motion.div>}
+            {/* 只有错误状态和完成状态允许删除 */}
+            {hover && (complete === CompleteStatus.Finished || complete === CompleteStatus.ErrorHandled) &&
+              <motion.div
+                className=" w-4 text-center bg-black rounded-md scale-150 hover:bg-slate-600 cursor-pointer "
+                initial={{ opacity: 0 }} // 初始透明度为 0
+                animate={{ opacity: 1 }} // 鼠标悬停时显示
+                transition={{ duration: 0.3 }} // 平滑的动画过渡
+                whileHover={{ opacity: 1 }} // 当鼠标悬停在该元素时显示图标
+                onClick={async (e) => {
+                  e.stopPropagation();
+                  $VT.update('open modal', (state) => {
+                    state.showModal = true
+                    state.modalFileName = title
+                  })
+                }}
+              >
+                <DeleteIcon className="text-red-500 align-center" />
+              </motion.div>}
+          </div>
         </div>
 
         <img
           src={imgSrc}
           alt="video-default"
-          className="  w-full aspect-[1.77] rounded-lg block"
+          className={` w-full aspect-[1.77] rounded-lg block 
+          ${complete !== CompleteStatus.Finished
+              ? 'opacity-50 pointer-events-none grayscale filter brightness-75 '
+              : 'cursor-pointer'}`}
         />
         <div
           className=" box-border w-full h-12 bg-video_title_background absolute bottom-0 rounded-lg
@@ -157,7 +182,7 @@ export const VideoCard: FC<VideoCardProps> = ({
 
       </div >
       {/* 圆形进度条 */}
-      {dealing === true && <RoundProgress progress={progress} estimate={estimate} />}
+      {complete !== CompleteStatus.Finished && <RoundProgress progress={progress} estimate={estimate} complete={complete} />}
     </div >
   );
 };

@@ -9,6 +9,13 @@ import { calcNeedTime, createTransferTNURL, throttle } from "@/utils";
 import { useEffect, type FC } from "react";
 import Modal from "./components/modal";
 
+export enum CompleteStatus {
+  ErrorHandled,
+  Handling,
+  AWaitHandling,
+  Finished
+}
+
 export const Transfer: FC = () => {
   const currentPage = $VT.use((state) => state.curPage);
   const totalPage = $VT.use((state) => state.totalPage);
@@ -83,18 +90,23 @@ export const Transfer: FC = () => {
             let item = videoStatus.find(s => s.video_name === card.name)!
             if (item === undefined) {
               item = {
-                completed: false,
+                completed: CompleteStatus.Unhandled,
                 progress: 0,
                 time_rest: 0,
                 video_name: ''
               }
             }
             return <VideoCard key={card.name} time={card.time} imgSrc={card.image} title={card.name}
-              dealing={!item.completed}
+              complete={item.completed}
               progress={item.progress}
               estimate={item.time_rest}
               isLast={(index + 1) % 4 === 0} />
           })}
+
+          <VideoCard
+            complete={CompleteStatus.ErrorHandled}
+            progress={0}
+            isLast={true} />
         </div>
 
         <div id="pagination" className="w-full flex justify-center ">
