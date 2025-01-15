@@ -217,7 +217,7 @@ export const api = {
       return res
     },
     addTask:async(fileName:string):Promise<void>=>{
-      const res = await instance.post("video/add_task",undefined,{
+      const res = await instance.get("video/add_task",{
         params:{
           video_name:fileName
         }

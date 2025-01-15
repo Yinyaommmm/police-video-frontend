@@ -27,9 +27,9 @@ export const VideoCard: FC<VideoCardProps> = ({
   imgSrc = "src/assets/fortest/video-default.png",
   time = "04:15:20",
   title = "2024年12月8日南京东路至长江西2024年12月8日南京东路至长江西2024年12月8日南京东路至长江西",
-  complete = CompleteStatus.AWaitHandling,
-  progress = 0,
-  estimate = 3601
+  complete = CompleteStatus.Finished,
+  progress = 1,
+  estimate = 0
 }) => {
   const [hover, setHover] = useState(false)
   const downloadVideo = async () => {
@@ -87,6 +87,9 @@ export const VideoCard: FC<VideoCardProps> = ({
     URL.revokeObjectURL(link.href);
   }
   const jumpToWatch = async () => {
+    if (complete !== CompleteStatus.Finished) {
+      return
+    }
     $UI.update('jump to player', (state) => {
       state.task = "player"
     })
@@ -142,6 +145,7 @@ export const VideoCard: FC<VideoCardProps> = ({
                 }}
               >
                 <ReloadIcon className="text-white align-center scale-[0.875] " />
+
               </motion.div>}
             {/* 只有错误状态和完成状态允许删除 */}
             {hover && (complete === CompleteStatus.Finished || complete === CompleteStatus.ErrorHandled) &&

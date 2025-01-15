@@ -8,6 +8,7 @@ import { $VT } from "@/store/videotransfer";
 import { calcNeedTime, createTransferTNURL, throttle } from "@/utils";
 import { useEffect, type FC } from "react";
 import Modal from "./components/modal";
+import { showMessage } from "@/components/message";
 
 export enum CompleteStatus {
   ErrorHandled,
@@ -28,19 +29,7 @@ export const Transfer: FC = () => {
     const customTime = $VT.get().customTime
     const customLength = $VT.get().lengthSelector
     const res = await api.transfer.thumbnailList(currentPage, customTime, customLength)
-    const caclTotalPage = Math.ceil(res.total_num / perPage)
-    if (caclTotalPage !== totalPage) {
-      $VT.update("change total", (state) => {
-        state.totalPage = caclTotalPage
-      })
-    }
-    $VT.update("update video", (state) => {
-      state.videoCardArray = res.thumbnail_list.map(item => ({
-        image: createTransferTNURL(item.url),
-        name: item.filename,
-        time: calcNeedTime(item.time)
-      }))
-    })
+    return res
   };
   const videoStatus = $VT.use(state => state.videoStatus)
   const loadVideoStatus = async () => {
@@ -48,13 +37,28 @@ export const Transfer: FC = () => {
     const customTime = $VT.get().customTime
     const customLength = $VT.get().lengthSelector
     const res = await api.transfer.handleStatus(currentPage, customTime, customLength)
-    $VT.update("set video status", state => {
-      state.videoStatus = res
-    })
+
+    return res
   }
-  const setPageContent = throttle(async () => {
-    await Promise.all([fetchThumbnail(), loadVideoStatus()])
-  }, 500)
+  const setPageContent_Unthrottle = (async () => {
+    const [thumbRes, statusRes] = await Promise.all([fetchThumbnail(), loadVideoStatus()])
+    const caclTotalPage = Math.ceil(thumbRes.total_num / perPage)
+
+    $VT.update("change total, update video, set video status", (state) => {
+      // change total
+      state.totalPage = caclTotalPage
+      // update video
+      state.videoCardArray = thumbRes.thumbnail_list.map(item => ({
+        image: createTransferTNURL(item.url),
+        name: item.filename,
+        time: calcNeedTime(item.time)
+      }))
+      // set video status
+      state.videoStatus = statusRes
+    })
+
+  })
+  const setPageContent = throttle(setPageContent_Unthrottle, 500)
 
   useEffect(() => {
     setPageContent()
@@ -90,9 +94,9 @@ export const Transfer: FC = () => {
             let item = videoStatus.find(s => s.video_name === card.name)!
             if (item === undefined) {
               item = {
-                completed: CompleteStatus.Unhandled,
+                completed: CompleteStatus.AWaitHandling,
                 progress: 0,
-                time_rest: 0,
+                time_rest: 2400,
                 video_name: ''
               }
             }
@@ -102,11 +106,11 @@ export const Transfer: FC = () => {
               estimate={item.time_rest}
               isLast={(index + 1) % 4 === 0} />
           })}
-
-          <VideoCard
-            complete={CompleteStatus.ErrorHandled}
-            progress={0}
-            isLast={true} />
+          {/* <VideoCard
+            complete={CompleteStatus.Handling}
+            progress={0.4}
+            estimate={120}
+            isLast={false} /> */}
         </div>
 
         <div id="pagination" className="w-full flex justify-center ">
@@ -148,10 +152,10 @@ export const Transfer: FC = () => {
           isOpen={showModal}
           onConfirm={async (e) => {
             e.stopPropagation()
-
             if (modalFileName !== "") {
+              showMessage("正在删除视频...")
               await api.transfer.deleteVideo(modalFileName)
-              await setPageContent()
+              await setPageContent_Unthrottle()
             }
             $VT.update('close modal', (state) => {
               state.showModal = false
