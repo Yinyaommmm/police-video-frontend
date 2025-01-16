@@ -1,6 +1,5 @@
 import React, { ReactNode, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { $VT } from '@/store/videotransfer';
 
 interface ModalProps {
     isOpen: boolean;

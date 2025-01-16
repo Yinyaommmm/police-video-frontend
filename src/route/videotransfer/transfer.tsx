@@ -71,9 +71,12 @@ export const Transfer: FC = () => {
     })
   }, [customTime, customLength])
   useEffect(() => {
-    setInterval(() => {
+    const interval = setInterval(() => {
       setPageContent()
     }, 5000)
+    return () => {
+      clearInterval(interval)
+    }
   }, [])
 
   // modal控制

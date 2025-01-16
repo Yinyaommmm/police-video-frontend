@@ -84,6 +84,7 @@ export const PlayerBody: FC = () => {
   }, 50)
 
   useLayoutEffect(() => {
+    // console.log('first layout effect', containerRef.current)
     if (containerRef.current) {
       const containerWidth = containerRef.current.getBoundingClientRect().width
       const containerHeight = Math.floor((containerWidth) / 1.77)
@@ -104,11 +105,12 @@ export const PlayerBody: FC = () => {
       const ele = document.querySelector('#JoL-player-container') as HTMLDivElement
       const now = new Date()
       const delta = now.getTime() - startTime.getTime()
-      if (delta > 2000) {
+      if (delta > 3000) {
         console.log('rectify time exceed')
         clearInterval(interval)
       }
       if (ele === null || containerRef.current === null) {
+        // console.log('not find container', ele === null, containerRef.current === null)
         return
       }
       const { width, height } = containerRef.current?.getBoundingClientRect()
@@ -119,17 +121,22 @@ export const PlayerBody: FC = () => {
         clearInterval(interval)
       }
     }, 100);
-  })
+    return () => {
+      if (interval !== null) {
+        clearInterval(interval)
+      }
+    }
+  }, [])
   return (
-    <div className=" w-full">
+    <div className=" w-full ">
       {/* <button className="absolute w-10 h-10 bg-red-300 z-50" onClick={() => {
         const { width: containerWidth, height: containerHeight } = containerRef.current?.getBoundingClientRect() || {}
         console.log(containerWidth, containerHeight)
       }}>获取信息</button>
       <button className="absolute w-10 h-10 bg-red-300 z-50 left-40" onClick={() => {
-        console.log(jolOption)
+        console.log(containerRef.current)
 
-      }}>获取信息</button> */}
+      }}>容器Ref</button> */}
       <div className="flex w-full justify-between">
         <div className=" h-auto overflow-x-hidden overflow-y-scroll  scrollbar-none flex-1 max-w-[1200px]  min-w-[800px]" >
           <div id="video-container" className="min-w-[668px]  my-0 flex" ref={containerRef} >
@@ -166,7 +173,7 @@ export const PlayerBody: FC = () => {
         </div>
         <EventList playVideoAt={playVideoAt} height={
           containerRef.current ?
-            containerRef.current.getBoundingClientRect().height + 40 + 40 : 652} style={{ width: `calc(100vw - 200px - 32px - 20px - ${videoWidth}px)` }} />
+            containerRef.current.getBoundingClientRect().height + 40 + 40 : 652} style={{ width: 350 }} />
       </div>
     </div >
 

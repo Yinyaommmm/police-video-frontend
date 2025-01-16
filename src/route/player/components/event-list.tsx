@@ -1,5 +1,5 @@
 import { $PR, SliceInfo } from "@/store/player";
-import { HTMLProps, FC, useRef } from "react";
+import { HTMLProps, FC, useRef, useEffect, useState } from "react";
 import { DividerIcon } from "@/assets/icons";
 import styled from "styled-components";
 import { TimeLeftButton, TimeRightButton } from "./time-button";
@@ -77,6 +77,12 @@ export const EventList: FC<EventListProperty> = ({
     }
 
   };
+  const [isRefReady, setIsRefReady] = useState(false);
+  useEffect(() => {
+    if (outerRef.current) {
+      setIsRefReady(true); // 标记 ref 已绑定
+    }
+  }, [outerRef.current])
   return (
     <div
       className={twMerge(`min-w-[300px] max-w-[360px] mx-4`)}
@@ -95,7 +101,7 @@ export const EventList: FC<EventListProperty> = ({
           <DividerIcon className="text-sm h-4 fill-[#47d4ff] relative top-[1px]" />
         </div>
       </div>
-      <VariableSizeList
+      ({isRefReady && <VariableSizeList
         height={height - 55} // 去掉顶部标题部分的高度
         width="95%"
         itemCount={sliceInfoArr.length}
@@ -105,7 +111,7 @@ export const EventList: FC<EventListProperty> = ({
         style={{ overflowX: "hidden" }} // VariableSizeList会设置为overflow auto，覆盖掉className里的overflow-x
       >
         {Row}
-      </VariableSizeList>
+      </VariableSizeList>})
     </div>
   );
 };
