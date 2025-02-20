@@ -78,6 +78,9 @@ export function calcNeetTimeFactory(){
       lastEnd = Date.now()
     }
     const avgChunkTime = (lastEnd - startTime) / Math.max(1,curIndex-1)  / 1000
+    if (avgChunkTime === 0){
+      return "计算中..."
+    }
     if (estimated !== undefined) {
       const remainTotalTime = avgChunkTime*(totalNum-curIndex) + estimated
       return calcNeedTime(remainTotalTime);

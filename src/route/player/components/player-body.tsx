@@ -120,6 +120,11 @@ export const PlayerBody: FC = () => {
         console.log('do rectification')
         clearInterval(interval)
       }
+      if (ele!.style.width !== height * 1.77 + 'px') {
+        ele.style.width = height * 1.77 + 'px'
+        console.log('do height rectification')
+        clearInterval(interval)
+      }
     }, 100);
     return () => {
       if (interval !== null) {
@@ -138,7 +143,7 @@ export const PlayerBody: FC = () => {
 
       }}>容器Ref</button> */}
       <div className="flex w-full justify-between">
-        <div className=" h-auto overflow-x-hidden overflow-y-scroll  scrollbar-none flex-1 max-w-[1200px]  min-w-[800px]" >
+        <div className=" h-auto overflow-x-hidden overflow-y-scroll  scrollbar-none flex-1 max-w-[1130px]  min-w-[800px]" >
           <div id="video-container" className="min-w-[668px]  my-0 flex" ref={containerRef} >
             {videoSrc !== "" && containerRef.current !== null ? (
               <motion.div

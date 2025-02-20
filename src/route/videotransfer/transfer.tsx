@@ -14,7 +14,8 @@ export enum CompleteStatus {
   ErrorHandled,
   Handling,
   AWaitHandling,
-  Finished
+  Finished,
+  Transform
 }
 
 export const Transfer: FC = () => {

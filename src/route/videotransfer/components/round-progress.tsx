@@ -16,6 +16,8 @@ function makeWaitingMsg(complete: CompleteStatus, estimate: number) {
         return <span> {`预计仍需${calcNeedTime(estimate)}`}</span>
     } else if (complete === CompleteStatus.ErrorHandled) {
         return <span className="text-red-500">异常视频</span>
+    } else if (complete === CompleteStatus.Transform) {
+        return <span> 转码中...</span>
     }
 }
 

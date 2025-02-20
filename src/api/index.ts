@@ -116,6 +116,7 @@ export const api = {
       const formData = new FormData();
       formData.append("file", file); 
       formData.append("name", file.name); 
+
       const response = await instance_long.post("/video/upload", formData, {
         onUploadProgress,
       });
@@ -252,6 +253,7 @@ export const api = {
       formData.append('name', fileName);
       formData.append('total_chunks', totalNum.toString()); // 确保是字符串形式
       formData.append('chunk_index', chunkIndex.toString());   // 确保是字符串形式
+      formData.append('chunk_size',CHUNKSIZE.toString())
       const res = await instance.post('/video/upload_chunk',formData,{onUploadProgress});
     }
   }
